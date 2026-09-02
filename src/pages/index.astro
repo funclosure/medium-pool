@@ -17,9 +17,12 @@ const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
       <h1>Every medium your app could speak.<br />Try it, then <span>take the skill</span>.</h1>
       <p>The medium is the message. Pick the one that says what your product means, try it live, then drop the matching Agent Skill into your repo so your coding agent builds it for you.</p>
     </div>
-    <div class="install" title="Installs every skill in the pool">
-      <span class="dollar">$</span><span id="install-all">npx skills add funclosure/medium-pool</span>
-      <button class="btn small" data-copy="#install-all">Copy</button>
+    <div class="install-wrap">
+      <div class="install" title="The medium-pool router skill plus every medium, kind, and composition">
+        <span class="dollar">$</span><span id="install-all">npx skills add funclosure/medium-pool</span>
+        <button class="btn small" data-copy="#install-all">Copy</button>
+      </div>
+      <p class="install-note">The router skill, which teaches your agent to choose a medium, plus every medium, kind, and composition. You pick which in the prompt.</p>
     </div>
   </header>
 

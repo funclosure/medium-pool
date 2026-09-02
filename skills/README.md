@@ -12,6 +12,10 @@ Every lane, kind, and composition in Medium Pool is one folder under `skills/`, 
 
 Rules that keep it bounded: a new lane needs a new sense or substrate. A new kind needs a skill that would mislead if merged. A composition needs a binding signal, not just two things on one screen. Realtime is a binding signal, not a medium.
 
+## The router
+
+`skills/medium-pool/` is the one folder without a manifest. Its `SKILL.md` teaches an agent the model and how to choose a medium, and carries a table of every class generated from the manifests. After adding or changing a folder, run `bun run router`; `bun run check` fails while the table is stale. It lives as a sibling folder, not as a root `SKILL.md`, because a root skill stops the skills CLI from scanning subfolders.
+
 ## Files in a folder
 
 ```

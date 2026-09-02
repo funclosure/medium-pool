@@ -25,7 +25,7 @@ Choose drawing when people need to mark, point, sketch, or sign, and when struct
 ## Reference instances
 Each is one way to speak this medium, cited as evidence. None of them is the medium.
 
-`reference/Sketchpad.ts` — pressure-aware brush, coalesced-event smoothing, swatches and size, undo and clear from a stroke list, DPR-correct backing store.
+`reference/Sketchpad.ts` — pressure-aware brush, coalesced-event smoothing, swatches and size, undo and clear from a stroke list, DPR-correct backing store. It uses a few layout class names from the pool's stylesheet (`row`, `btn`, `status`, `frame`); without that stylesheet the logic still runs and the controls are unstyled.
 
 ## Gotchas
 - `touch-action: none` on the surface or the page scrolls.

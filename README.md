@@ -9,9 +9,12 @@ The medium is the message. Every lane names what the medium does to a person bef
 ## Install a skill
 
 ```sh
-npx skills add funclosure/medium-pool                  # every skill in the pool
-npx skills add funclosure/medium-pool --skill medium-text
+npx skills add funclosure/medium-pool                  # pick from the pool: the router plus every medium
+npx skills add funclosure/medium-pool --skill medium-pool   # just the router: how to choose a medium
+npx skills add funclosure/medium-pool --skill medium-text   # one medium, with its reference instance
 ```
+
+The `medium-pool` skill is the router. It teaches an agent the model and carries a table of every medium with what it does to the person, then points at the `medium-*` or `compose-*` skill for the build. Each skill folder is copied whole: `SKILL.md`, the manifest, and the reference module.
 
 Every lane, kind, and composition is a folder under `skills/`, and the folder names are the skill names. `npx skills add funclosure/medium-pool --list` shows what the CLI finds without installing anything (the CLI wants Node 22.20 or newer).
 
@@ -30,7 +33,8 @@ The contract for a folder is in [`skills/README.md`](skills/README.md). To add o
 ```sh
 bun install
 bun run dev        # http://localhost:4321
-bun run check      # validates every skill folder against the contract
+bun run check      # validates every skill folder against the contract, and that the router table is current
+bun run router     # regenerates the router's pool table from the manifests
 bun run test       # check + production build (bun run test, not bun test: that is bun's own runner)
 ```
 

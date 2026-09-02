@@ -26,7 +26,7 @@ Choose visualization when the picture is computed from data and people explore i
 ## Reference instances
 Each is one way to speak this medium, cited as evidence. None of them is the medium.
 
-`reference/ForceGraph.ts` — force-directed layout (repulsion, springs, centering, damping), drag and hover hit testing, weighted nodes, a `setEmphasis(ids)` API, add and shake helpers. The same module is composed by `skills/compose-reading-graph`.
+`reference/ForceGraph.ts` — force-directed layout (repulsion, springs, centering, damping), drag and hover hit testing, weighted nodes, a `setEmphasis(ids)` API, add and shake helpers. The same module is composed by `skills/compose-reading-graph`. It uses a few layout class names from the pool's stylesheet (`row`, `btn`, `status`, `frame`); without that stylesheet the logic still runs and the controls are unstyled.
 
 ## Gotchas
 - Separate simulation from drawing.

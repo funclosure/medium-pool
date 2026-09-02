@@ -25,7 +25,7 @@ Choose images when the input is visual, when people must preview a change before
 ## Reference instances
 Each is one way to speak this medium, cited as evidence. None of them is the medium.
 
-`reference/ImageLab.ts` — drop zone with picker fallback, generated sample image at rest, grayscale, pixelate, and threshold filters on ImageData, with parameter sliders.
+`reference/ImageLab.ts` — drop zone with picker fallback, generated sample image at rest, grayscale, pixelate, and threshold filters on ImageData, with parameter sliders. It uses a few layout class names from the pool's stylesheet (`row`, `btn`, `status`, `frame`); without that stylesheet the logic still runs and the controls are unstyled.
 
 ## Gotchas
 - Never run getImageData on a full-resolution phone photo.

@@ -28,7 +28,7 @@ Prose and a concept graph, bound by scroll position. The reader scrolls; one pas
 ## Reference instances
 Each is one way to speak this composition, cited as evidence. None of them is the composition.
 
-`reference/ReadingGraph.ts` — passage list with ids, reading-line resolver, and a ForceGraph from the visualization skill driven through `setEmphasis`.
+`reference/ReadingGraph.ts` — passage list with ids, reading-line resolver, and a ForceGraph from the visualization skill driven through `setEmphasis`. It imports the graph engine from the sibling `medium-visualization` skill folder, so install both or the import fails. It uses a few layout class names from the pool's stylesheet (`row`, `btn`, `status`, `frame`); without that stylesheet the logic still runs and the controls are unstyled.
 
 ## Gotchas
 - Fixed reading line, not intersection ratios.

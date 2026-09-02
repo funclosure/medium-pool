@@ -28,7 +28,7 @@ A question box, a streamed answer, and a concept graph. As the answer arrives, e
 ## Reference instances
 Each is one way to speak this composition, cited as evidence. None of them is the composition.
 
-`reference/AskGraph.ts` — question chips, streamed markdown answer, label-to-id resolver, frame-throttled emphasis growth on a ForceGraph from the visualization skill.
+`reference/AskGraph.ts` — question chips, streamed markdown answer, label-to-id resolver, frame-throttled emphasis growth on a ForceGraph from the visualization skill. It imports the graph engine from the sibling `medium-visualization` skill folder, so install both or the import fails. It uses a few layout class names from the pool's stylesheet (`row`, `btn`, `status`, `frame`); without that stylesheet the logic still runs and the controls are unstyled.
 
 ## Gotchas
 - Ids over labels in production.

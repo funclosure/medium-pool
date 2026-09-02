@@ -25,7 +25,7 @@ Text is right when people will read, quote, search, or copy the result. It is th
 ## Reference instances
 Each is one way to speak this medium, cited as evidence. None of them is the medium.
 
-`reference/StreamingText.ts` — incremental markdown renderer that tolerates open fences and unclosed emphasis, a token/latency meter, and a stop handle. Framework-free; `mount(root)` builds the UI, `unmount()` stops the stream.
+`reference/StreamingText.ts` — incremental markdown renderer that tolerates open fences and unclosed emphasis, a token/latency meter, and a stop handle. Framework-free; `mount(root)` builds the UI, `unmount()` stops the stream. It uses a few layout class names from the pool's stylesheet (`row`, `btn`, `status`, `frame`); without that stylesheet the logic still runs and the controls are unstyled.
 
 ## Gotchas
 - Incremental markdown must be forgiving; use a parser that can render partial input.

@@ -12,7 +12,8 @@
     "check": "node scripts/check-skills.mjs",
     "test": "npm run check && astro build",
     "deploy": "wrangler pages deploy dist --project-name medium-pool",
-    "astro": "astro"
+    "astro": "astro",
+    "router": "node scripts/build-router.mjs"
   },
   "dependencies": {
     "astro": "^7.2.10",

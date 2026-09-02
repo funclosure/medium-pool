@@ -27,7 +27,7 @@ A visualization of geographic data. Inherits the lane's camera, hit testing, and
 ## Reference instances
 Each is one way to speak this medium, cited as evidence. None of them is the medium.
 
-`reference/SlippyMap.ts` — projection helpers, tile cache with a generated fallback tile, drag pan and wheel zoom, marker layer, locate-me with graceful denial.
+`reference/SlippyMap.ts` — projection helpers, tile cache with a generated fallback tile, drag pan and wheel zoom, marker layer, locate-me with graceful denial. It uses a few layout class names from the pool's stylesheet (`row`, `btn`, `status`, `frame`); without that stylesheet the logic still runs and the controls are unstyled.
 
 ## Gotchas
 - Mercator distorts area; do not compare sizes on it.

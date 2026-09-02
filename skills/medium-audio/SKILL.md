@@ -25,7 +25,7 @@ Choose audio when hands or eyes are busy, when tone matters, or when speaking be
 ## Reference instances
 Each is one way to speak this medium, cited as evidence. None of them is the medium.
 
-`reference/Recorder.ts` — mic capture with waveform, MediaRecorder recording, decode-and-play playback, synthesized fallback tone, and full teardown on unmount.
+`reference/Recorder.ts` — mic capture with waveform, MediaRecorder recording, decode-and-play playback, synthesized fallback tone, and full teardown on unmount. It uses a few layout class names from the pool's stylesheet (`row`, `btn`, `status`, `frame`); without that stylesheet the logic still runs and the controls are unstyled.
 
 ## Gotchas
 - Codec output differs by browser; never assume webm.

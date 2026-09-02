@@ -3,6 +3,7 @@
 // Exit 1 with a list of problems; exit 0 with a count when everything holds.
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { parse as parseYaml } from 'yaml';
 
 const ROOT = new URL('..', import.meta.url).pathname;
@@ -26,6 +27,8 @@ const frontmatter = (text, label) => {
 const REQUIRED = ['slug', 'name', 'hook', 'message', 'direction', 'substrate', 'accent', 'instances'];
 
 function checkFolder(dir) {
+  const hasManifest = existsSync(join(ROOT, 'skills', dir, 'lane.md')) || existsSync(join(ROOT, 'skills', dir, 'composition.md'));
+  if (!hasManifest) return checkPoolSkill(dir);
   const kind = existsSync(join(ROOT, 'skills', dir, 'composition.md')) ? 'compositions' : 'skills';
   const manifestName = kind === 'skills' ? 'lane.md' : 'composition.md';
   const label = `skills/${dir}`;
@@ -65,6 +68,23 @@ function checkFolder(dir) {
   if (kind === 'compositions') {
     if (!mfm.mediums) problems.push(`${label}: composition.md needs "mediums"`);
     if (!mfm.binding) problems.push(`${label}: composition.md needs "binding"`);
+  }
+}
+
+// A pool-level skill (the router) has a SKILL.md and no manifest: it describes the pool, not a class.
+function checkPoolSkill(dir) {
+  const label = `skills/${dir}`;
+  checked++;
+  const skillPath = join(ROOT, 'skills', dir, 'SKILL.md');
+  if (!existsSync(skillPath)) { problems.push(`${label}: no manifest and no SKILL.md; not a skill folder`); return; }
+  const sfm = frontmatter(readFileSync(skillPath, 'utf8'), label + '/SKILL.md');
+  if (sfm) {
+    if (sfm.name !== dir) problems.push(`${label}: SKILL.md name "${sfm.name}" must equal the folder name "${dir}"`);
+    if (!sfm.description) problems.push(`${label}: SKILL.md needs a description`);
+  }
+  if (dir === 'medium-pool') {
+    const r = spawnSync(process.execPath, [join(ROOT, 'scripts', 'build-router.mjs'), '--check'], { encoding: 'utf8' });
+    if (r.status !== 0) problems.push(`${label}: ${(r.stderr || r.stdout).trim()}`);
   }
 }
 

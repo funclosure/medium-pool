@@ -25,7 +25,7 @@ Choose video when motion carries the meaning or when presence matters. Optimize 
 ## Reference instances
 Each is one way to speak this medium, cited as evidence. None of them is the medium.
 
-`reference/LiveVideo.ts` — generated feed via captureStream as the default source, camera opt-in with a graceful denial path, CSS filter switching, and snapshot strip.
+`reference/LiveVideo.ts` — generated feed via captureStream as the default source, camera opt-in with a graceful denial path, CSS filter switching, and snapshot strip. It uses a few layout class names from the pool's stylesheet (`row`, `btn`, `status`, `frame`); without that stylesheet the logic still runs and the controls are unstyled.
 
 ## Gotchas
 - Set `video.muted = true` in JS for autoplay to succeed.
