@@ -11,7 +11,7 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props as { entry: Entry };
 const { lanes } = await getCatalog();
-const lane = entry.level === 'kind' ? lanes.find((l) => l.slug === entry.laneSlug) : entry.level === 'lane' ? entry : undefined;
+const lane = entry.level === 'kind' ? lanes.find((l) => l.slug === entry.laneSlug) : entry.level === 'medium' ? entry : undefined;
 const parts = (entry.mediums ?? []).map((m) => lanes.find((l) => l.slug === m)).filter(Boolean) as Entry[];
 const title = entry.level === 'kind' && lane ? `${lane.name} / ${entry.name} · Medium Pool` : `${entry.name} · Medium Pool`;
 ---

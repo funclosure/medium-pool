@@ -2,7 +2,7 @@
 
 Every medium your app could speak. Try it, then take the skill.
 
-Medium Pool is a kickstart guide for building a product around a medium: text, audio, video, image, drawing, visualization, 3D, and the kinds and compositions that grow from them. Each lane has a live in-browser demo and an [Agent Skill](https://agentskills.io) your coding agent can install, so the demo you touched is the code your agent starts from.
+Medium Pool is a kickstart guide for building a product around a medium: text, audio, video, image, drawing, visualization, 3D, and the kinds and compositions that grow from them. Each has a live in-browser instance and an [Agent Skill](https://agentskills.io) your coding agent can install, so the demo you touched is the code your agent starts from.
 
 The medium is the message. Every lane names what the medium does to a person before any content arrives, and every skill leads with that.
 
@@ -17,9 +17,11 @@ Every lane, kind, and composition is a folder under `skills/`, and the folder na
 
 ## Three levels
 
-- **Lane**: a perceptual channel with its own substrate. `skills/medium-text`, `skills/medium-audio`, …
+- **Medium**: a perceptual channel with its own substrate. `skills/medium-text`, `skills/medium-audio`, …
 - **Kind**: a data domain inside a lane whose concerns diverge. `skills/medium-visualization-map` sits under Visualization.
-- **Composition**: two or more lanes bound by a signal. `skills/compose-reading-graph` binds Visualization and Text by scroll position.
+- **Composition**: two or more mediums bound by a signal. `skills/compose-reading-graph` binds Visualization and Text by scroll position.
+
+Each of those is a class. What runs on a page is an **instance** of it, one way to build the class, never the class itself. A folder's `instances` list holds the pool instances the site runs and the wild ones (projects, libraries) that prove the class elsewhere.
 
 The contract for a folder is in [`skills/README.md`](skills/README.md). To add one, copy an existing folder, edit its manifest, `SKILL.md`, and `reference/` module, then run `bun run check`. The site picks it up at build.
 

@@ -2,26 +2,34 @@
 slug: visualization
 order: 6
 name: Visualization
-hook: Graphs, charts, spatial data
+hook: A picture computed from data
 message: The whole is visible before the parts.
+direction: out
+substrate:
+  - 2D canvas or WebGL
+  - layout simulation
+  - hit testing and camera
 accent: { light: "#B4407C", dark: "#E07DB4" }
-demo: reference/ForceGraph.ts
-examples:
+instances:
+  - slug: force-graph
+    name: Force graph
+    hook: Nodes, links, emphasis
+    module: reference/ForceGraph.ts
   - name: mindgraph
-    url: https://github.com/funclosure/mindgraph
     by: you
+    url: https://github.com/funclosure/mindgraph
     note: A force-directed concept graph on one 2D canvas, with layout, hit testing, camera, and emphasis all hand-rolled.
   - name: D3
-    url: https://github.com/d3/d3
     by: oss
+    url: https://github.com/d3/d3
     note: "The toolkit for data-driven documents: forces, scales, shapes, and the vocabulary everyone else borrows."
   - name: Cytoscape.js
-    url: https://github.com/cytoscape/cytoscape.js
     by: oss
+    url: https://github.com/cytoscape/cytoscape.js
     note: Graph theory library with layouts and analysis for node-link views.
   - name: sigma.js
-    url: https://github.com/jacomyal/sigma.js
     by: oss
+    url: https://github.com/jacomyal/sigma.js
     note: WebGL renderer for graphs too large for a 2D canvas.
 ---
 

@@ -25,7 +25,9 @@ A question box, a streamed answer, and a concept graph. As the answer arrives, e
 - The answer is readable without the graph; the graph is explorable without the answer.
 - Keep the last answer's emphasis until the next question starts.
 
-## Reference implementation
+## Reference instances
+Each is one way to speak this composition, cited as evidence. None of them is the composition.
+
 `reference/AskGraph.ts` — question chips, streamed markdown answer, label-to-id resolver, frame-throttled emphasis growth on a ForceGraph from the visualization skill.
 
 ## Gotchas

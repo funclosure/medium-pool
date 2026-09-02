@@ -2,26 +2,29 @@
 slug: drawing
 order: 5
 name: Drawing
-hook: Draw, annotate, whiteboard
+hook: Marks a hand makes
 message: The hand thinks, and the app is the surface it thinks on.
+direction: in
+substrate:
+  - Pointer Events with pressure
+  - 2D canvas
 accent: { light: "#248F63", dark: "#4FC38F" }
-demo: reference/Sketchpad.ts
-examples:
-  - name: komorebi
-    url: https://github.com/funclosure/komorebi
-    by: you
-    note: A procedural tree-shadow backdrop you tune in the browser. The canvas as a generative surface rather than an input.
+instances:
+  - slug: sketchpad
+    name: Sketchpad
+    hook: Draw, annotate, whiteboard
+    module: reference/Sketchpad.ts
   - name: Excalidraw
-    url: https://github.com/excalidraw/excalidraw
     by: oss
+    url: https://github.com/excalidraw/excalidraw
     note: Hand-drawn style whiteboard; the state of the art for collaborative sketching.
   - name: perfect-freehand
-    url: https://github.com/steveruizok/perfect-freehand
     by: oss
+    url: https://github.com/steveruizok/perfect-freehand
     note: Pressure-sensitive stroke outlines from pointer input. The math behind brushes that feel right.
   - name: tldraw
-    url: https://github.com/tldraw/tldraw
     by: oss
+    url: https://github.com/tldraw/tldraw
     note: Infinite canvas SDK with a full editor on top.
 ---
 

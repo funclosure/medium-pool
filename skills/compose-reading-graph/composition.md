@@ -4,19 +4,25 @@ order: 1
 name: Reading-driven graph
 hook: Prose scroll reveals the graph
 message: Reading becomes navigation.
+direction: both
+substrate:
+  - Visualization + Text
+  - scroll position as the binding
 accent: { light: "#4C5FA3", dark: "#9DA9E6" }
-demo: reference/ReadingGraph.ts
 mediums: [visualization, text]
 binding: scroll position → emphasis set
-example: mindgraph
-examples:
+instances:
+  - slug: global-workspace-reader
+    name: Global Workspace reader
+    hook: Six passages, twelve concepts
+    module: reference/ReadingGraph.ts
   - name: mindgraph
-    url: https://github.com/funclosure/mindgraph
     by: you
+    url: https://github.com/funclosure/mindgraph
     note: "The origin of this composition: scrolling the Source pane spotlights the graph."
   - name: scrollama
-    url: https://github.com/russellsamora/scrollama
     by: oss
+    url: https://github.com/russellsamora/scrollama
     note: Scrollytelling with IntersectionObserver. The scroll-to-step resolver, generalized.
 ---
 

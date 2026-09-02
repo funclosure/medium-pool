@@ -22,7 +22,9 @@ Choose audio when hands or eyes are busy, when tone matters, or when speaking be
 - A Stop control that releases every track, visibly.
 - A working state with no microphone: permission denied, no device, or an embedded frame that blocks it.
 
-## Reference implementation
+## Reference instances
+Each is one way to speak this medium, cited as evidence. None of them is the medium.
+
 `reference/Recorder.ts` — mic capture with waveform, MediaRecorder recording, decode-and-play playback, synthesized fallback tone, and full teardown on unmount.
 
 ## Gotchas

@@ -22,7 +22,9 @@ Choose drawing when people need to mark, point, sketch, or sign, and when struct
 - Undo and Clear are always visible. Undo removes the last stroke, not the last pixel.
 - Keep strokes as data so resize, export, and sync are replays.
 
-## Reference implementation
+## Reference instances
+Each is one way to speak this medium, cited as evidence. None of them is the medium.
+
 `reference/Sketchpad.ts` — pressure-aware brush, coalesced-event smoothing, swatches and size, undo and clear from a stroke list, DPR-correct backing store.
 
 ## Gotchas

@@ -2,13 +2,14 @@
 import type { Entry } from '../lib/catalog';
 interface Props {
   entry: Entry;
-  /** parent lane when entry is a kind, else the entry itself for lanes; undefined for compositions */
+  /** parent medium when entry is a kind, else the entry itself for mediums; undefined for compositions */
   lane?: Entry;
   parts?: Entry[];
 }
 const { entry, lane, parts = [] } = Astro.props;
 const title = entry.level === 'kind' && lane ? `${lane.name} / ${entry.name}` : entry.name;
 const switcher = lane && lane.kinds.length > 0 ? [lane, ...lane.kinds] : [];
+const first = entry.pool[0];
 ---
 
 <div class="panel" id="demo-panel">
@@ -20,11 +21,20 @@ const switcher = lane && lane.kinds.length > 0 ? [lane, ...lane.kinds] : [];
     )}
     {switcher.length > 0 && (
       <nav class="seg kindswitch" aria-label="Kind">
-        {switcher.map((s, i) => <a href={s.path} aria-current={s.slug === entry.slug ? 'page' : undefined}>{i === 0 ? 'Lane' : s.name}</a>)}
+        {switcher.map((s, i) => <a href={s.path} aria-current={s.slug === entry.slug ? 'page' : undefined}>{i === 0 ? 'Medium' : s.name}</a>)}
       </nav>
     )}
     <span class="hook">{entry.hook}</span>
   </div>
   <div class="message"><strong>message</strong>{entry.message}</div>
-  <div class="demo" data-demo={entry.demoKey}></div>
+  <div class="instance-bar">
+    <span class="inst-label">instance <b id="instance-name">{first.name}</b></span>
+    {entry.pool.length > 1 ? (
+      <div class="seg instswitch" role="group" aria-label="Instance">
+        {entry.pool.map((i) => <button type="button" data-demo-key={i.demoKey} data-name={i.name} data-hook={i.hook} aria-pressed={String(i === first)}>{i.name}</button>)}
+      </div>
+    ) : null}
+    <span class="inst-hook" id="instance-hook">{first.hook}</span>
+  </div>
+  <div class="demo" data-demo={first.demoKey}></div>
 </div>

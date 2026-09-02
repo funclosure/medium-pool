@@ -2,23 +2,31 @@
 slug: map
 order: 1
 name: Map
-hook: Tiles, projection, location
+hook: The Earth’s surface as the data
 message: Where is the content.
+direction: both
+substrate:
+  - Web Mercator
+  - z/x/y tiles from a provider
+  - Geolocation
 accent: { light: "#B4407C", dark: "#E07DB4" }
-demo: reference/SlippyMap.ts
 lane: visualization
-examples:
+instances:
+  - slug: slippy-map
+    name: Slippy map
+    hook: Tiles, projection, location
+    module: reference/SlippyMap.ts
   - name: MapLibre GL JS
-    url: https://github.com/maplibre/maplibre-gl-js
     by: oss
+    url: https://github.com/maplibre/maplibre-gl-js
     note: Vector tiles on WebGL; the open successor to Mapbox GL and the default for production.
   - name: Leaflet
-    url: https://github.com/Leaflet/Leaflet
     by: oss
+    url: https://github.com/Leaflet/Leaflet
     note: The small raster-tile classic. The slippy map this demo imitates.
   - name: deck.gl
-    url: https://github.com/visgl/deck.gl
     by: oss
+    url: https://github.com/visgl/deck.gl
     note: Large-scale geospatial layers on WebGL, on top of a base map.
 ---
 

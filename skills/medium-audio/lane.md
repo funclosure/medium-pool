@@ -2,18 +2,26 @@
 slug: audio
 order: 2
 name: Audio
-hook: Capture, visualize, play back
+hook: Sound the app hears and makes
 message: The app becomes a voice in the room, with the intimacy and the intrusion of one.
+direction: both
+substrate:
+  - getUserMedia
+  - Web Audio
+  - MediaRecorder
 accent: { light: "#D9573F", dark: "#F0846E" }
-demo: reference/Recorder.ts
-examples:
+instances:
+  - slug: voice-recorder
+    name: Voice recorder
+    hook: Capture, visualize, play back
+    module: reference/Recorder.ts
   - name: wavesurfer.js
-    url: https://github.com/katspaugh/wavesurfer.js
     by: oss
+    url: https://github.com/katspaugh/wavesurfer.js
     note: Waveform rendering and interaction over Web Audio and audio elements.
   - name: Tone.js
-    url: https://github.com/Tonejs/Tone.js
     by: oss
+    url: https://github.com/Tonejs/Tone.js
     note: Web Audio framework for synthesis and scheduling. The test-tone path, grown up.
 ---
 

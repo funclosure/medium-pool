@@ -2,26 +2,29 @@
 slug: webgl
 order: 7
 name: 3D
-hook: Orbit, light, material
+hook: Objects you can walk around
 message: The thing has a back.
+direction: out
+substrate:
+  - WebGL through three.js
+  - one renderer per page
 accent: { light: "#1794B0", dark: "#4CC3DE" }
-demo: reference/OrbitScene.ts
-examples:
-  - name: screenshot-maker
-    url: https://github.com/funclosure/screenshot-maker
-    by: you
-    note: A 3D iPhone stage in the browser for framing App Store screenshots.
+instances:
+  - slug: orbit-viewer
+    name: Orbit viewer
+    hook: Orbit, light, material
+    module: reference/OrbitScene.ts
   - name: three.js
-    url: https://github.com/mrdoob/three.js
     by: oss
+    url: https://github.com/mrdoob/three.js
     note: The library this demo runs on.
   - name: react-three-fiber
-    url: https://github.com/pmndrs/react-three-fiber
     by: oss
+    url: https://github.com/pmndrs/react-three-fiber
     note: three.js as React components, with the pmndrs ecosystem around it.
   - name: Babylon.js
-    url: https://github.com/BabylonJS/Babylon.js
     by: oss
+    url: https://github.com/BabylonJS/Babylon.js
     note: A full engine when a scene graph is not enough.
 ---
 

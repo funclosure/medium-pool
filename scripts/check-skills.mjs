@@ -23,7 +23,7 @@ const frontmatter = (text, label) => {
   }
 };
 
-const REQUIRED = ['slug', 'name', 'hook', 'message', 'accent', 'demo'];
+const REQUIRED = ['slug', 'name', 'hook', 'message', 'direction', 'substrate', 'accent', 'instances'];
 
 function checkFolder(dir) {
   const kind = existsSync(join(ROOT, 'skills', dir, 'composition.md')) ? 'compositions' : 'skills';
@@ -44,13 +44,22 @@ function checkFolder(dir) {
   if (!skill.includes(`## What this ${subject} does to the person`)) {
     problems.push(`${label}: SKILL.md must lead with "## What this ${subject} does to the person"`);
   }
+  if (!skill.includes('## Reference instances')) problems.push(`${label}: SKILL.md needs a "## Reference instances" section (instances are evidence, not the ${subject})`);
 
   if (!existsSync(manifestPath)) { problems.push(`${label}: missing ${manifestName}`); return; }
   const manifest = readFileSync(manifestPath, 'utf8');
   const mfm = frontmatter(manifest, label + '/' + manifestName);
   if (!mfm) return;
   for (const key of REQUIRED) if (mfm[key] == null || mfm[key] === '') problems.push(`${label}: ${manifestName} is missing "${key}"`);
-  if (mfm.demo && !existsSync(join(ROOT, 'skills', dir, mfm.demo))) problems.push(`${label}: demo "${mfm.demo}" does not exist`);
+  for (const legacy of ['demo', 'examples']) if (legacy in mfm) problems.push(`${label}: "${legacy}" is gone; put it under "instances"`);
+  if (!['in', 'out', 'both'].includes(mfm.direction)) problems.push(`${label}: direction must be in, out, or both`);
+  const instances = Array.isArray(mfm.instances) ? mfm.instances : [];
+  if (!instances.some((i) => i && i.module)) problems.push(`${label}: needs at least one pool instance (an instance with a module)`);
+  for (const i of instances) {
+    if (!i || !i.name) { problems.push(`${label}: every instance needs a name`); continue; }
+    if (i.module) { if (!existsSync(join(ROOT, 'skills', dir, i.module))) problems.push(`${label}: instance "${i.name}" module "${i.module}" does not exist`); }
+    else if (!i.by || !i.note) problems.push(`${label}: wild instance "${i.name}" needs "by" and "note"`);
+  }
   if (!/^## Why/m.test(manifest)) problems.push(`${label}: ${manifestName} body needs a "## Why" section`);
   if (!/^## Gotchas/m.test(manifest)) problems.push(`${label}: ${manifestName} body needs a "## Gotchas" section`);
   if (kind === 'compositions') {

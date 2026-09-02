@@ -25,7 +25,9 @@ Prose and a concept graph, bound by scroll position. The reader scrolls; one pas
 - Mark the active passage in the prose too, so both sides agree visibly.
 - Optional auto-read scrolls slowly and stops at the end; the reader can always take over.
 
-## Reference implementation
+## Reference instances
+Each is one way to speak this composition, cited as evidence. None of them is the composition.
+
 `reference/ReadingGraph.ts` — passage list with ids, reading-line resolver, and a ForceGraph from the visualization skill driven through `setEmphasis`.
 
 ## Gotchas

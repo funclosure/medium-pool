@@ -22,7 +22,9 @@ Text is right when people will read, quote, search, or copy the result. It is th
 - A visible Stop control while streaming, and a Copy control that copies source markdown.
 - Only auto-scroll when the reader is already at the bottom.
 
-## Reference implementation
+## Reference instances
+Each is one way to speak this medium, cited as evidence. None of them is the medium.
+
 `reference/StreamingText.ts` — incremental markdown renderer that tolerates open fences and unclosed emphasis, a token/latency meter, and a stop handle. Framework-free; `mount(root)` builds the UI, `unmount()` stops the stream.
 
 ## Gotchas

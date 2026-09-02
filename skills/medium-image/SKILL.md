@@ -22,7 +22,9 @@ Choose images when the input is visual, when people must preview a change before
 - Downscale before pixel work so the tab never freezes; say when you did.
 - Process locally by default and tell the user the image never leaves the browser.
 
-## Reference implementation
+## Reference instances
+Each is one way to speak this medium, cited as evidence. None of them is the medium.
+
 `reference/ImageLab.ts` — drop zone with picker fallback, generated sample image at rest, grayscale, pixelate, and threshold filters on ImageData, with parameter sliders.
 
 ## Gotchas

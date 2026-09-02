@@ -2,26 +2,26 @@
 slug: text
 order: 1
 name: Text
-hook: Streams, renders, never blocks
+hook: Words people read, quote, and search
 message: The app becomes quotable, and streaming makes it feel like it is thinking with you.
+direction: both
+substrate:
+  - DOM
+  - ReadableStream or Server-Sent Events
+  - aria-live
 accent: { light: "#2B5FB3", dark: "#78A4EE" }
-demo: reference/StreamingText.ts
-examples:
-  - name: mindsizer
-    url: https://github.com/funclosure/mindsizer
-    by: you
-    note: Digests dense writing into an interactive deck. Text is the input and the output, with interactive slides in between.
-  - name: weaving-shuttle
-    url: https://github.com/funclosure/weaving-shuttle
-    by: you
-    note: "A two-axis reading surface: threads run horizontally as sequence, depth links run vertically as association."
+instances:
+  - slug: streamed-answer
+    name: Streamed answer
+    hook: Streams, renders, never blocks
+    module: reference/StreamingText.ts
   - name: streamdown
-    url: https://github.com/vercel/streamdown
     by: oss
+    url: https://github.com/vercel/streamdown
     note: A markdown renderer built for streaming. Tolerates unterminated blocks mid-stream, which is the hard part of this lane.
   - name: marked
-    url: https://github.com/markedjs/marked
     by: oss
+    url: https://github.com/markedjs/marked
     note: Fast markdown compiler; the baseline most incremental renderers wrap.
 ---
 

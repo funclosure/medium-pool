@@ -4,15 +4,21 @@ order: 2
 name: Ask-driven graph
 hook: The answer lights up the map
 message: Asking draws the map.
+direction: both
+substrate:
+  - Text + Visualization
+  - the answer stream as the binding
 accent: { light: "#4C5FA3", dark: "#9DA9E6" }
-demo: reference/AskGraph.ts
 mediums: [text, visualization]
 binding: answer stream → emphasis set
-example: mindgraph Ask pane
-examples:
+instances:
+  - slug: global-workspace-ask
+    name: Global Workspace ask
+    hook: Three questions, growing emphasis
+    module: reference/AskGraph.ts
   - name: mindgraph
-    url: https://github.com/funclosure/mindgraph
     by: you
+    url: https://github.com/funclosure/mindgraph
     note: "The Ask pane: a live agent answers over the digested graph and the canvas follows."
 ---
 

@@ -22,7 +22,9 @@ Choose video when motion carries the meaning or when presence matters. Optimize 
 - Snapshot and record controls should be one tap and confirm visibly.
 - Release the camera the moment the user leaves the feature.
 
-## Reference implementation
+## Reference instances
+Each is one way to speak this medium, cited as evidence. None of them is the medium.
+
 `reference/LiveVideo.ts` — generated feed via captureStream as the default source, camera opt-in with a graceful denial path, CSS filter switching, and snapshot strip.
 
 ## Gotchas

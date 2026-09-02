@@ -22,7 +22,9 @@ Choose 3D when spatial relationships are the content and people need to rotate, 
 - Auto-rotate only when `prefers-reduced-motion` is not set, and provide a toggle.
 - Fall back to a message, not a blank space, if WebGL is unavailable.
 
-## Reference implementation
+## Reference instances
+Each is one way to speak this medium, cited as evidence. None of them is the medium.
+
 `reference/OrbitScene.ts` — single shared renderer reused across mounts, torus knot with matte, metal, and normal materials, wireframe toggle, drag-to-orbit, reduced-motion aware auto-rotate.
 
 ## Gotchas

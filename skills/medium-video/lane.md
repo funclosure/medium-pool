@@ -2,22 +2,26 @@
 slug: video
 order: 3
 name: Video
-hook: Live frames, filters, snapshots
+hook: Moving frames, live or recorded
 message: The app becomes a witness; time is the content.
+direction: both
+substrate:
+  - video element with srcObject
+  - getUserMedia
+  - canvas.captureStream
 accent: { light: "#7A4FD1", dark: "#AE8DF2" }
-demo: reference/LiveVideo.ts
-examples:
-  - name: TimeCliper
-    by: you
-    private: true
-    note: iOS app that loads a YouTube transcript so you clip the exact moment without scrubbing. Video bound to text by time.
+instances:
+  - slug: live-feed
+    name: Live feed
+    hook: Live frames, filters, snapshots
+    module: reference/LiveVideo.ts
   - name: video.js
-    url: https://github.com/videojs/video.js
     by: oss
+    url: https://github.com/videojs/video.js
     note: Player with a plugin ecosystem; the reference for controls, captions, and multiple sources.
   - name: hls.js
-    url: https://github.com/video-dev/hls.js
     by: oss
+    url: https://github.com/video-dev/hls.js
     note: Adaptive streaming in the browser through Media Source Extensions.
 ---
 

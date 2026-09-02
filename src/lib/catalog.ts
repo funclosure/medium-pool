@@ -1,9 +1,12 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 
-export type Example = { name: string; url?: string; by: 'you' | 'oss'; private?: boolean; note: string };
 export type Accent = { light: string; dark: string };
+export type Level = 'medium' | 'kind' | 'composition';
 
-export type Level = 'lane' | 'kind' | 'composition';
+/** An instance that runs in the pool: the site mounts its module on the stage. */
+export interface PoolInstance { slug: string; name: string; hook: string; module: string; demoKey: string }
+/** An instance in the wild: a project or library someone else built. */
+export interface WildInstance { name: string; by: 'you' | 'oss'; url?: string; private?: boolean; note: string }
 
 export interface Entry {
   level: Level;
@@ -12,14 +15,15 @@ export interface Entry {
   name: string;
   hook: string;
   message: string;
+  direction: 'in' | 'out' | 'both';
+  substrate: string[];
   accent: Accent;
-  /** import.meta.glob key of the demo module, e.g. /skills/medium-text/reference/StreamingText.ts */
-  demoKey: string;
   /** site path, e.g. /text or /visualization/map */
   path: string;
   /** repo path of the SKILL.md */
   skillPath: string;
-  examples: Example[];
+  pool: PoolInstance[];
+  wild: WildInstance[];
   whyHtml: string;
   gotchasHtml: string;
   kinds: Entry[];
@@ -46,6 +50,13 @@ function splitBody(html: string | undefined) {
 function build(level: Level, e: CollectionEntry<'lanes'> | CollectionEntry<'compositions'>, path: string): Entry {
   const d = e.data as any;
   const { whyHtml, gotchasHtml } = splitBody(e.rendered?.html);
+  const pool: PoolInstance[] = [];
+  const wild: WildInstance[] = [];
+  for (const i of d.instances as any[]) {
+    if (i.module) pool.push({ slug: i.slug ?? i.name.toLowerCase().replace(/\s+/g, '-'), name: i.name, hook: i.hook ?? '', module: i.module, demoKey: `/skills/${e.id}/${i.module}` });
+    else wild.push({ name: i.name, by: i.by, url: i.url, private: i.private, note: i.note ?? '' });
+  }
+  if (!pool.length) throw new Error(`${e.id} has no pool instance (an instance with a module)`);
   return {
     level,
     folder: e.id,
@@ -53,11 +64,13 @@ function build(level: Level, e: CollectionEntry<'lanes'> | CollectionEntry<'comp
     name: d.name,
     hook: d.hook,
     message: d.message,
+    direction: d.direction,
+    substrate: d.substrate ?? [],
     accent: d.accent,
-    demoKey: `/skills/${e.id}/${d.demo}`,
     path,
     skillPath: `skills/${e.id}/SKILL.md`,
-    examples: d.examples ?? [],
+    pool,
+    wild,
     whyHtml: whyHtml.replace(/<h2[^>]*>Why<\/h2>/, ''),
     gotchasHtml,
     kinds: [],
@@ -77,12 +90,12 @@ export async function getCatalog(): Promise<Catalog> {
   const laneEntries = await getCollection('lanes');
   const compEntries = await getCollection('compositions');
 
-  const lanes = laneEntries.filter((e) => !e.data.lane).map((e) => build('lane', e, `/${e.data.slug}`));
+  const lanes = laneEntries.filter((e) => !e.data.lane).map((e) => build('medium', e, `/${e.data.slug}`));
   lanes.sort(byOrder);
 
   for (const e of laneEntries.filter((e) => e.data.lane)) {
     const parent = lanes.find((l) => l.slug === e.data.lane);
-    if (!parent) throw new Error(`Kind ${e.id} names lane "${e.data.lane}", which does not exist`);
+    if (!parent) throw new Error(`Kind ${e.id} names medium "${e.data.lane}", which does not exist`);
     parent.kinds.push(build('kind', e, `/${parent.slug}/${e.data.slug}`));
   }
 

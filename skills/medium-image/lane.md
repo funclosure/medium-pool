@@ -2,22 +2,26 @@
 slug: image
 order: 4
 name: Image
-hook: Upload, transform, preview
+hook: A still the person hands you
 message: The person shows instead of tells.
+direction: in
+substrate:
+  - file input, drop, paste
+  - FileReader
+  - 2D canvas pixels
 accent: { light: "#C98A18", dark: "#E7B24A" }
-demo: reference/ImageLab.ts
-examples:
-  - name: screenshot-maker
-    url: https://github.com/funclosure/screenshot-maker
-    by: you
-    note: Composes whole App Store screenshot sets from one manifest. Image as the output of a pipeline, rendered in the browser.
+instances:
+  - slug: filter-lab
+    name: Filter lab
+    hook: Upload, transform, preview
+    module: reference/ImageLab.ts
   - name: Squoosh
-    url: https://github.com/GoogleChromeLabs/squoosh
     by: oss
+    url: https://github.com/GoogleChromeLabs/squoosh
     note: In-browser image compression with codecs compiled to WebAssembly. The on-device processing ideal.
   - name: Cropper.js
-    url: https://github.com/fengyuanchen/cropperjs
     by: oss
+    url: https://github.com/fengyuanchen/cropperjs
     note: Cropping, rotating, and scaling with a canvas result.
 ---
 

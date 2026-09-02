@@ -13,6 +13,7 @@ A static Astro 7 site plus one folder per lane, kind, and composition. Read `ski
 ## Rules
 
 - Skill folder name equals `SKILL.md` `name`. Lanes `medium-<id>`, kinds `medium-<lane>-<kind>`, compositions `compose-<id>`.
-- Every manifest has `message` (the McLuhan line); every `SKILL.md` leads with "What this medium does to the person".
+- A medium, kind, or composition is a class; the demo is one instance of it. Manifests list `instances` (pool ones have `module`, wild ones have `by`), never a single `demo`. Every manifest has `message` (the McLuhan line); every `SKILL.md` leads with "What this medium does to the person" and has a "Reference instances" section.
+- Do not add the user's side projects as wild instances unless asked; mindgraph is the one exception already in.
 - Demos are vanilla TypeScript, self-contained, `{ mount(root), unmount() }`, and degrade with no camera, mic, location, or network.
 - Package manager is bun. Run `bun run check` and `bun run build` before committing (`bun run test` does both). Commit only when asked.

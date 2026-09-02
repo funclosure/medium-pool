@@ -3,39 +3,50 @@ import type { Entry } from '../lib/catalog';
 import { skillText } from '../lib/skillText';
 interface Props { entry: Entry; parts?: Entry[] }
 const { entry, parts = [] } = Astro.props;
-const noun = entry.level === 'lane' ? 'medium' : entry.level;
+const noun = entry.level;
 const skill = skillText(entry.skillPath);
 const install = `npx skills add funclosure/medium-pool --skill ${entry.folder}`;
+const direction = { in: 'in (the person gives it)', out: 'out (the app shows it)', both: 'both ways' }[entry.direction];
 ---
 
 <div class="panel" id="context-panel">
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" data-tab="why" aria-selected="true">Why this {noun}</button>
     <button class="tab" role="tab" data-tab="gotchas" aria-selected="false">Gotchas</button>
-    <button class="tab" role="tab" data-tab="wild" aria-selected="false">In the wild</button>
+    <button class="tab" role="tab" data-tab="instances" aria-selected="false">Instances</button>
     <button class="tab" role="tab" data-tab="skill" aria-selected="false">Skill</button>
   </div>
   <div class="tabpanel prose" data-tab="why" data-active>
     <Fragment set:html={entry.whyHtml} />
+    <dl class="kv">
+      <dt>direction</dt><dd>{direction}</dd>
+      <dt>substrate</dt><dd>{entry.substrate.join(' · ')}</dd>
+    </dl>
     {entry.level === 'composition' && parts.length > 0 && (
       <>
         <h3>Built from</h3>
         <ul>{parts.map((p) => <li><a href={p.path}>{p.name}</a>: {p.hook}</li>)}</ul>
       </>
     )}
-    {entry.level === 'lane' && entry.kinds.length > 0 && (
+    {entry.level === 'medium' && entry.kinds.length > 0 && (
       <>
-        <h3>Kinds in this lane</h3>
-        <ul>{entry.kinds.map((k) => <li><a href={k.path}><strong>{k.name}</strong></a>: {k.hook}. Own skill, because its concerns diverge from the lane's.</li>)}</ul>
+        <h3>Kinds of this medium</h3>
+        <ul>{entry.kinds.map((k) => <li><a href={k.path}><strong>{k.name}</strong></a>: {k.hook}. Own skill, because its concerns diverge from the medium's.</li>)}</ul>
       </>
     )}
   </div>
   <div class="tabpanel prose" data-tab="gotchas"><Fragment set:html={entry.gotchasHtml} /></div>
-  <div class="tabpanel prose" data-tab="wild">
-    <h3>Built with this {noun}</h3>
+  <div class="tabpanel prose" data-tab="instances">
+    <h3>Instances of this {noun}</h3>
+    <p>Each is one way to build it. None of them is the {noun}.</p>
     <div class="ex-list">
-      {entry.examples.length === 0 && <p>No examples yet. This is where a side project or an open source repo goes.</p>}
-      {entry.examples.map((x) => (
+      {entry.pool.map((i) => (
+        <div class="ex">
+          <div class="ex-head"><span class="name">{i.name}</span><span class="tag pool">in the pool</span></div>
+          <p>{i.hook}. <code>{i.module}</code></p>
+        </div>
+      ))}
+      {entry.wild.map((x) => (
         <div class="ex">
           <div class="ex-head">
             {x.url ? <a href={x.url} target="_blank" rel="noopener">{x.name}</a> : <span class="name">{x.name}</span>}
