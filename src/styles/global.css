@@ -184,6 +184,7 @@
   .ex p { font-size: 13.5px; color: var(--muted); }
   .skill-tools { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
   .skill-path { font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+  .skill-tools .install { white-space: normal; overflow-wrap: anywhere; align-items: flex-start; }
   .skill-md {
     margin: 0; padding: 14px; font-size: 12.5px; line-height: 1.5;
     background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
