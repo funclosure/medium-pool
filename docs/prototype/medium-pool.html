@@ -1,0 +1,1657 @@
+<title>Medium Pool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  :root {
+    --ground: #EDF3F2;
+    --surface: #FFFFFF;
+    --surface-2: #F6F9F8;
+    --ink: #12292C;
+    --muted: #587170;
+    --line: #C9D9D6;
+    --line-strong: #A9C0BC;
+    --focus: #12292C;
+    --acc-text: #2B5FB3;
+    --acc-audio: #D9573F;
+    --acc-video: #7A4FD1;
+    --acc-image: #C98A18;
+    --acc-drawing: #248F63;
+    --acc-viz: #B4407C;
+    --acc-comp: #4C5FA3;
+    --acc-3d: #1794B0;
+    --accent: var(--acc-text);
+    --shadow: 0 1px 0 rgba(18,41,44,.06), 0 12px 32px -20px rgba(18,41,44,.35);
+    --radius: 14px;
+    --display: "Albert Sans", "Helvetica Neue", Arial, sans-serif;
+    --body: "IBM Plex Sans", "Segoe UI", Roboto, system-ui, sans-serif;
+    --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0C1719;
+      --surface: #142326;
+      --surface-2: #1A2C2F;
+      --ink: #E4EFED;
+      --muted: #93ACA9;
+      --line: #25393C;
+      --line-strong: #37504F;
+      --focus: #E4EFED;
+      --acc-text: #78A4EE;
+      --acc-audio: #F0846E;
+      --acc-video: #AE8DF2;
+      --acc-image: #E7B24A;
+      --acc-drawing: #4FC38F;
+      --acc-viz: #E07DB4;
+      --acc-comp: #9DA9E6;
+      --acc-3d: #4CC3DE;
+      --shadow: 0 1px 0 rgba(0,0,0,.3), 0 12px 32px -20px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0C1719;
+    --surface: #142326;
+    --surface-2: #1A2C2F;
+    --ink: #E4EFED;
+    --muted: #93ACA9;
+    --line: #25393C;
+    --line-strong: #37504F;
+    --focus: #E4EFED;
+    --acc-text: #78A4EE;
+    --acc-audio: #F0846E;
+    --acc-video: #AE8DF2;
+    --acc-image: #E7B24A;
+    --acc-drawing: #4FC38F;
+    --acc-viz: #E07DB4;
+    --acc-comp: #9DA9E6;
+    --acc-3d: #4CC3DE;
+    --shadow: 0 1px 0 rgba(0,0,0,.3), 0 12px 32px -20px rgba(0,0,0,.8);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+  button, select, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  code, pre, kbd { font-family: var(--mono); }
+  h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+  p { margin: 0; }
+  a { color: inherit; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 40px); }
+
+  /* ---------- header ---------- */
+  .top {
+    display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end;
+    padding: clamp(28px, 5vw, 56px) 0 28px;
+  }
+  .brand { display: flex; flex-direction: column; gap: 14px; }
+  .brand h1 { font-size: clamp(34px, 5.2vw, 60px); font-weight: 700; line-height: 1.02; letter-spacing: -0.02em; }
+  .brand h1 span { color: var(--accent); transition: color .3s; }
+  .brand p { max-width: 46ch; font-size: 17px; color: var(--muted); }
+  .eyebrow { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .install {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 8px 8px 8px 14px; font-family: var(--mono); font-size: 13px; white-space: nowrap;
+  }
+  .install .dollar { color: var(--muted); }
+
+  /* ---------- pool ---------- */
+  .pool {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    margin: 0 0 22px;
+  }
+  .section-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 0 0 10px; }
+  .section-head h2 { font-size: 15px; font-weight: 700; font-family: var(--body); }
+  .section-head p { font-size: 13px; color: var(--muted); }
+  .comps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 0 0 22px; }
+  .tile.comp { border-style: dashed; grid-template-rows: auto auto 1fr; }
+  .parts { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .part { font-size: 11.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; color: #fff; background: var(--pc); }
+  .binding { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .kinds { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .kinds .label { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .kind { font-size: 11.5px; font-weight: 600; padding: 1px 8px; border-radius: 999px; color: var(--accent); border: 1px solid var(--accent); }
+  .tile.has-kinds { grid-template-rows: auto auto 1fr; }
+  .kindswitch { margin-left: 4px; }
+  .map { touch-action: none; cursor: grab; height: 340px; }
+  .tile.comp canvas { height: 64px; }
+  .tile {
+    --accent: var(--tile-accent);
+    position: relative; display: grid; grid-template-rows: auto 1fr; gap: 10px;
+    padding: 14px 14px 12px; text-align: left; cursor: pointer;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: transform .18s ease, border-color .18s ease;
+  }
+  .tile:hover { transform: translateY(-2px); border-color: var(--line-strong); }
+  .tile[aria-pressed="true"] { border-color: var(--accent); }
+  .tile[aria-pressed="true"]::after {
+    content: ""; position: absolute; inset: -1px; border-radius: var(--radius);
+    border: 2px solid var(--accent); pointer-events: none;
+  }
+  .tile-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .tile-head h2 { font-size: 19px; font-weight: 700; }
+  .tile-head .hook { font-size: 12.5px; color: var(--muted); text-align: right; }
+  .tile canvas { width: 100%; height: 72px; display: block; border-radius: 8px; background: var(--surface-2); }
+
+  /* ---------- stage ---------- */
+  .stage {
+    display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px;
+    margin-bottom: 40px;
+  }
+  .panel {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow); min-width: 0;
+    display: flex; flex-direction: column;
+  }
+  .panel-head {
+    display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .panel-head h2 { font-size: 22px; font-weight: 700; }
+  .panel-head .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex: none; }
+  .panel-head .hook { color: var(--muted); font-size: 14px; margin-left: auto; text-align: right; }
+  .demo { padding: 18px; display: flex; flex-direction: column; gap: 12px; min-height: 420px; }
+
+  .tabs { display: flex; gap: 4px; padding: 10px 12px 0; border-bottom: 1px solid var(--line); }
+  .tab {
+    background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 10px 10px;
+    color: var(--muted); font-weight: 500; cursor: pointer; margin-bottom: -1px;
+  }
+  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .tabpanel { padding: 18px; flex: 1; }
+  .tabpanel:not([data-active]) { display: none; }
+  .tabpanel.prose[data-active] { display: flex; }
+  .prose { max-width: 62ch; display: flex; flex-direction: column; gap: 12px; }
+  .prose h3 { font-size: 15px; font-weight: 700; font-family: var(--body); margin-top: 4px; }
+  .prose ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+  .prose code { font-size: 13px; background: var(--surface-2); border: 1px solid var(--line); padding: 1px 5px; border-radius: 4px; }
+
+  .ex-list { display: flex; flex-direction: column; }
+  .ex { display: flex; flex-direction: column; gap: 3px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .ex:first-child { border-top: 0; padding-top: 0; }
+  .ex-head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .ex-head a, .ex-head .name { font-weight: 600; color: var(--ink); }
+  .ex-head a:hover { color: var(--accent); }
+  .tag { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; padding: 1px 6px; border-radius: 4px; }
+  .tag.you { background: var(--accent); color: #fff; }
+  .tag.oss { border: 1px solid var(--line-strong); color: var(--muted); }
+  .ex p { font-size: 13.5px; color: var(--muted); }
+  .skill-tools { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+  .skill-path { font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+  .skill-md {
+    margin: 0; padding: 14px; font-size: 12.5px; line-height: 1.5;
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
+    white-space: pre-wrap; word-break: break-word; max-height: 460px; overflow: auto;
+    user-select: text;
+  }
+
+  /* ---------- controls ---------- */
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line-strong);
+    background: var(--surface); cursor: pointer; font-weight: 500; font-size: 13.5px; line-height: 1.2;
+  }
+  .btn:hover { border-color: var(--ink); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.small { padding: 5px 9px; font-size: 12.5px; }
+  .btn.copied { border-color: var(--acc-drawing); color: var(--acc-drawing); }
+  .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg button { border: 0; background: var(--surface); padding: 6px 10px; cursor: pointer; font-size: 13px; }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .field { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .field input[type=range] { accent-color: var(--accent); width: 110px; }
+  select { padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--surface); }
+  .status { font-family: var(--mono); font-size: 12px; color: var(--muted); min-height: 1.4em; }
+  .status.warn { color: var(--acc-audio); }
+  .frame { position: relative; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .frame > canvas, .frame > video { display: block; width: 100%; }
+
+  /* text demo */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 999px; padding: 4px 10px; font-size: 12.5px; cursor: pointer; }
+  .chip:hover { border-color: var(--ink); }
+  .ask { display: flex; gap: 8px; }
+  .ask input { flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--surface); min-width: 0; }
+  .out {
+    flex: 1; min-height: 220px; padding: 14px 16px; border-radius: 10px;
+    background: var(--surface-2); border: 1px solid var(--line); overflow: auto;
+  }
+  .md { display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; max-width: 62ch; }
+  .md h1, .md h2, .md h3 { font-family: var(--body); font-weight: 700; }
+  .md h1 { font-size: 18px; } .md h2 { font-size: 16px; } .md h3 { font-size: 15px; }
+  .md ul { margin: 0; padding-left: 18px; }
+  .md code { font-size: 13px; background: var(--surface); border: 1px solid var(--line); padding: 1px 5px; border-radius: 4px; }
+  .md .fm { font-family: var(--mono); font-size: 12px; color: var(--muted); border-left: 2px solid var(--line-strong); padding-left: 10px; white-space: pre-wrap; }
+  .caret { display: inline-block; width: 8px; height: 1em; background: var(--accent); vertical-align: -2px; margin-left: 2px; animation: blink 1s steps(2) infinite; }
+  .meter { display: flex; gap: 16px; font-family: var(--mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* canvas demo */
+  .swatches { display: flex; gap: 6px; }
+  .swatch { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--line-strong); cursor: pointer; padding: 0; }
+  .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); }
+  .sketch { touch-action: none; cursor: crosshair; height: 320px; }
+
+  /* composition demo */
+  .compose { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 380px; }
+  .reader { overflow: auto; padding: 14px 16px; font-size: 14px; line-height: 1.6; scroll-behavior: smooth; }
+  .reader p { margin: 0 0 16px; color: var(--muted); transition: color .25s; }
+  .reader p[data-on] { color: var(--ink); }
+  .reader p[data-on] mark { color: var(--accent); }
+  .reader mark { background: none; color: inherit; font-weight: 600; }
+  .reader .pad { height: 45%; }
+  .graph { touch-action: none; cursor: grab; height: 100%; }
+  .compose .frame { min-height: 0; }
+
+  /* video demo
+  .snaps { display: flex; gap: 8px; min-height: 58px; }
+  .snaps canvas { height: 56px; width: auto; border-radius: 6px; border: 1px solid var(--line); }
+
+  /* image demo */
+  .drop { border: 1px dashed var(--line-strong); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--muted); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .drop.over { border-color: var(--accent); color: var(--ink); }
+  .drop label { cursor: pointer; text-decoration: underline; color: var(--ink); }
+  .drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+
+  /* footer */
+  footer { border-top: 1px solid var(--line); padding: 28px 0 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; color: var(--muted); font-size: 14px; }
+  footer h3 { font-size: 15px; color: var(--ink); margin-bottom: 8px; }
+  footer .credit { margin-top: 14px; font-size: 13px; }
+  .message { font-style: italic; color: var(--muted); font-size: 14px; padding: 10px 18px 0; }
+  .message strong { font-style: normal; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-right: 8px; }
+  footer pre { margin: 0; font-size: 12px; line-height: 1.5; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; overflow-x: auto; }
+
+  @keyframes blink { to { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .tile, .caret { transition: none; animation: none; }
+  }
+  @media (max-width: 900px) {
+    .top { grid-template-columns: 1fr; align-items: start; }
+    .install { justify-self: start; }
+    .pool { grid-template-columns: repeat(2, 1fr); }
+    .comps { grid-template-columns: 1fr; }
+    .compose { grid-template-columns: 1fr; height: auto; }
+    .compose .reader { height: 220px; }
+    .compose .graph { height: 260px; }
+    .stage { grid-template-columns: 1fr; }
+    footer { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .pool { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .tile { padding: 10px; }
+    .tile-head .hook { display: none; }
+    .tile canvas { height: 56px; }
+    .install { white-space: normal; }
+    .panel-head .hook { display: none; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="eyebrow">Prototype · seven mediums · one kind · two compositions · a skill for each</div>
+      <h1>Every medium your app could speak.<br>Try it, then <span id="brand-accent">take the skill</span>.</h1>
+      <p>The medium is the message. Pick the one that says what your product means, try it live, then drop the matching Agent Skill into your repo so your coding agent builds it for you.</p>
+    </div>
+    <div class="install" title="Installs every medium skill">
+      <span class="dollar">$</span><span id="install-all">npx skills add funclosure/medium-pool</span>
+      <button class="btn small" data-copy="#install-all">Copy</button>
+    </div>
+  </header>
+
+  <div class="section-head"><h2>Mediums</h2><p>One skill each. A lane is a folder. A kind is a data domain inside a lane whose concerns diverge; it is a folder too, named lane-kind, and shows up under its lane.</p></div>
+  <section class="pool" id="pool" aria-label="Choose a medium"></section>
+
+  <div class="section-head"><h2>Compositions</h2><p>Two or more mediums bound together. The skill teaches the binding and points at the mediums for the parts.</p></div>
+  <section class="comps" id="comps" aria-label="Choose a composition"></section>
+
+  <section class="stage" id="stage" aria-live="polite">
+    <div class="panel" id="demo-panel">
+      <div class="panel-head"><span class="dot"></span><h2 id="demo-title">Text</h2><span id="demo-parts"></span><span id="demo-kinds"></span><span class="hook" id="demo-hook"></span></div>
+      <div class="message" id="demo-message"></div>
+      <div class="demo" id="demo-root"></div>
+    </div>
+    <div class="panel" id="context-panel">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="why" aria-selected="true">Why this medium</button>
+        <button class="tab" role="tab" data-tab="gotchas" aria-selected="false">Gotchas</button>
+        <button class="tab" role="tab" data-tab="wild" aria-selected="false">In the wild</button>
+        <button class="tab" role="tab" data-tab="skill" aria-selected="false">Skill</button>
+      </div>
+      <div class="tabpanel prose" data-tab="why" data-active></div>
+      <div class="tabpanel prose" data-tab="gotchas"></div>
+      <div class="tabpanel prose" data-tab="wild"></div>
+      <div class="tabpanel" data-tab="skill">
+        <div class="skill-tools">
+          <div class="row">
+            <button class="btn primary" id="copy-skill">Copy SKILL.md</button>
+            <button class="btn" id="copy-install">Copy install line</button>
+          </div>
+          <div class="install"><span class="dollar">$</span><span id="install-one"></span></div>
+          <div class="skill-path" id="skill-path"></div>
+        </div>
+        <pre class="skill-md" id="skill-md"></pre>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>
+      <h3>How the repo will be laid out</h3>
+      <p>Each demo above is the reference implementation its skill points to. The site imports the same file the agent reads, so the skill is proven by the running demo. Every lane is a folder with a small manifest, and the site discovers folders at build time, so extending the pool never touches site code.</p>
+      <p class="credit">“The medium is the message” is Marshall McLuhan, <em>Understanding Media</em> (1964). Here it is a design lens: every lane names what the medium does to a person before any content arrives, and the skills lead with that.</p>
+    </div>
+    <pre>medium-pool/
+├── site/                     Astro + MDX, Cloudflare Pages
+│   └── src/pages/[lane].mdx  one page per folder, found at build
+├── skills/                   mediums, one folder each
+│   ├── text/
+│   │   ├── medium.json       id · name · hook · message · accent · demo · examples
+│   │   ├── SKILL.md
+│   │   └── reference/StreamingText.tsx
+│   ├── audio/ video/ image/ drawing/
+│   ├── visualization/ webgl/
+│   ├── visualization-map/    kind: map, under lane visualization
+│   └── …
+└── compositions/             bindings between mediums
+    ├── reading-graph/
+    │   ├── composition.json  mediums + binding
+    │   ├── SKILL.md
+    │   └── reference/ReadingGraph.tsx
+    └── ask-graph/</pre>
+  </footer>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (s, el = document) => el.querySelector(s);
+  const h = (tag, attrs = {}, ...kids) => {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === 'class') el.className = v;
+      else if (k === 'html') el.innerHTML = v;
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else if (k.startsWith('aria-')) el.setAttribute(k, String(v));
+      else if (v !== false && v != null) el.setAttribute(k, v === true ? '' : v);
+    }
+    for (const k of kids.flat()) if (k != null) el.append(k.nodeType ? k : document.createTextNode(k));
+    return el;
+  };
+  const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const accentOf = el => getComputedStyle(el).getPropertyValue('--accent').trim() || '#2B5FB3';
+  const inkOf = el => getComputedStyle(el).getPropertyValue('--ink').trim();
+
+  // tiny markdown: frontmatter, #/##/###, -, **bold**, `code`
+  function renderMd(md) {
+    let out = '';
+    let src = md.trim();
+    const fm = src.match(/^---\n([\s\S]*?)\n---\n?/);
+    if (fm) { out += `<div class="fm">${esc(fm[1])}</div>`; src = src.slice(fm[0].length); }
+    const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>');
+    const lines = src.split('\n');
+    let list = null;
+    const flush = () => { if (list) { out += `<ul>${list.map(i => `<li>${inline(i)}</li>`).join('')}</ul>`; list = null; } };
+    for (const line of lines) {
+      const m = line.match(/^(#{1,3})\s+(.*)/);
+      if (m) { flush(); out += `<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`; continue; }
+      if (/^\s*-\s+/.test(line)) { (list ||= []).push(line.replace(/^\s*-\s+/, '')); continue; }
+      flush();
+      if (line.trim()) out += `<p>${inline(line)}</p>`;
+    }
+    flush();
+    return out;
+  }
+
+  async function copyText(text, btn) {
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; }
+    catch {
+      const ta = h('textarea', { style: 'position:fixed;opacity:0' }, text);
+      document.body.append(ta); ta.select();
+      try { ok = document.execCommand('copy'); } catch {}
+      ta.remove();
+    }
+    if (btn) {
+      const label = btn.textContent;
+      btn.textContent = ok ? 'Copied' : 'Select and copy manually';
+      btn.classList.toggle('copied', ok);
+      setTimeout(() => { btn.textContent = label; btn.classList.remove('copied'); }, 1600);
+    }
+  }
+
+  /* =====================================================================
+     DEMOS — each is { mount(root), unmount() }, framework-free.
+     These are the pieces that move into skills/<medium>/reference/.
+     ===================================================================== */
+
+  // ---------- TEXT: streamed response with live markdown ----------
+  const TextDemo = (() => {
+    const answers = {
+      'Explain streaming to a PM': `## Why we stream text\nPeople read at about **250 words a minute**, but a model can take 3–8 seconds to finish a paragraph. If we wait for the whole answer, the screen is blank for all of that time.\n\nStreaming shows each token as it arrives, so:\n- the first word lands in ~300 ms instead of ~5 s\n- people start reading while we keep generating\n- a wrong direction is visible early, and a \`Stop\` button becomes meaningful\n\nThe cost is UI complexity: markdown that is half-written, code fences that are still open, and layout that shifts as text grows. The reference component handles all three.`,
+      'Write release notes': `# v0.4 — Medium Pool\n\n## New\n- **Six mediums** in one place: text, audio, video, image, canvas, 3D\n- Every demo doubles as the skill's reference code\n\n## Changed\n- Install line is now \`npx skills add funclosure/medium-pool\`\n- Skill tab renders the raw \`SKILL.md\` so nothing is hidden\n\n## Fixed\n- Camera and microphone are released the moment you leave the lane`,
+      'Summarize this page': `**Medium Pool** is a kickstart guide. Each lane is one medium an app can use, with a working demo you can touch and an Agent Skill you can install.\n\n- Try the medium in the browser\n- Read why it matters and where it bites\n- Copy the skill into \`skills/<medium>/\` in your repo\n\nYour coding agent reads the skill and builds that medium the way the demo does.`
+    };
+    let root, out, input, meter, timer, streaming = false, stopBtn;
+    function stream(prompt) {
+      const text = answers[prompt] || `I don't have a canned answer for “${prompt}” in this prototype, but the real thing would stream one here.\n\nTry one of the chips above to see **markdown rendered mid-stream**.`;
+      const tokens = text.match(/\S+\s*|\s+/g) || [];
+      let i = 0, acc = '', t0 = performance.now();
+      streaming = true; stopBtn.disabled = false;
+      clearInterval(timer);
+      const tick = () => {
+        if (!streaming) return;
+        acc += tokens[i++];
+        out.innerHTML = renderMd(acc) + (i < tokens.length ? '<span class="caret" aria-hidden="true"></span>' : '');
+        out.scrollTop = out.scrollHeight;
+        meter.textContent = `${i} tokens · ${Math.round(performance.now() - t0)} ms · ${i >= tokens.length ? 'done' : 'streaming'}`;
+        if (i >= tokens.length) { streaming = false; stopBtn.disabled = true; clearInterval(timer); }
+      };
+      out.innerHTML = '';
+      timer = setInterval(tick, reduceMotion ? 8 : 38);
+    }
+    return {
+      mount(el) {
+        root = el;
+        out = h('div', { class: 'out md', 'aria-live': 'polite' });
+        meter = h('div', { class: 'meter' }, '0 tokens');
+        stopBtn = h('button', { class: 'btn small', disabled: true, onclick: () => { streaming = false; stopBtn.disabled = true; clearInterval(timer); out.querySelector('.caret')?.remove(); } }, 'Stop');
+        input = h('input', { type: 'text', placeholder: 'Ask anything, or pick a prompt', 'aria-label': 'Prompt' });
+        const form = h('form', { class: 'ask', onsubmit: e => { e.preventDefault(); if (input.value.trim()) stream(input.value.trim()); } },
+          input, h('button', { class: 'btn primary', type: 'submit' }, 'Send'));
+        const chips = h('div', { class: 'chips' }, Object.keys(answers).map(p => h('button', { class: 'chip', type: 'button', onclick: () => { input.value = p; stream(p); } }, p)));
+        root.append(chips, form, out, h('div', { class: 'row', style: 'justify-content:space-between' }, meter, stopBtn));
+        stream('Explain streaming to a PM');
+      },
+      unmount() { streaming = false; clearInterval(timer); }
+    };
+  })();
+
+  // ---------- CANVAS: pressure-aware sketchpad ----------
+  const CanvasDemo = (() => {
+    let canvas, ctx, strokes = [], current = null, color, size = 6, ro, root;
+    const colors = ['#12292C', '#2B5FB3', '#D9573F', '#C98A18', '#248F63', '#7A4FD1'];
+    function fit() {
+      const r = canvas.getBoundingClientRect(), dpr = devicePixelRatio || 1;
+      canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      redraw();
+    }
+    function seg(s, a, b) {
+      ctx.strokeStyle = s.color; ctx.lineWidth = s.size * (0.35 + 1.3 * b.p);
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+    function redraw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const s of strokes) for (let i = 1; i < s.pts.length; i++) seg(s, s.pts[i - 1], s.pts[i]);
+    }
+    const pt = e => { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top, p: e.pointerType === 'mouse' ? 0.5 : (e.pressure || 0.5) }; };
+    function down(e) { canvas.setPointerCapture(e.pointerId); current = { color, size, pts: [pt(e)] }; strokes.push(current); }
+    function move(e) {
+      if (!current) return;
+      const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+      for (const ev of evs) { const p = pt(ev); seg(current, current.pts[current.pts.length - 1], p); current.pts.push(p); }
+    }
+    function up() { current = null; }
+    return {
+      mount(el) {
+        root = el; color = colors[0];
+        canvas = h('canvas', { class: 'sketch', 'aria-label': 'Drawing surface' });
+        ctx = canvas.getContext('2d');
+        canvas.addEventListener('pointerdown', down); canvas.addEventListener('pointermove', move);
+        canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
+        const sw = h('div', { class: 'swatches', role: 'group', 'aria-label': 'Color' }, colors.map(c => h('button', { class: 'swatch', style: `background:${c}`, 'aria-pressed': c === color, 'aria-label': c, onclick: e => { color = c; sw.querySelectorAll('.swatch').forEach(b => b.setAttribute('aria-pressed', b === e.currentTarget)); } })));
+        const range = h('input', { type: 'range', min: 1, max: 24, value: size, oninput: e => size = +e.target.value });
+        const controls = h('div', { class: 'row' }, sw,
+          h('label', { class: 'field' }, 'Brush', range),
+          h('button', { class: 'btn small', onclick: () => { strokes.pop(); redraw(); } }, 'Undo'),
+          h('button', { class: 'btn small', onclick: () => { strokes = []; redraw(); } }, 'Clear'));
+        root.append(controls, h('div', { class: 'frame' }, canvas), h('div', { class: 'status' }, 'Pointer Events · pressure changes the width on pen and touch · coalesced events keep fast strokes smooth'));
+        fit(); ro = new ResizeObserver(fit); ro.observe(canvas);
+        // a small hello so the pad is not empty at rest
+        const w = canvas.clientWidth, y0 = 150;
+        const hello = { color: colors[1], size: 5, pts: [] };
+        for (let i = 0; i <= 60; i++) hello.pts.push({ x: 40 + (w - 80) * i / 60, y: y0 + Math.sin(i / 6) * 40, p: 0.3 + 0.5 * Math.abs(Math.sin(i / 9)) });
+        strokes.push(hello); redraw();
+      },
+      unmount() { ro?.disconnect(); strokes = []; current = null; }
+    };
+  })();
+
+  // ---------- IMAGE: upload + pixel filters ----------
+  const ImageDemo = (() => {
+    let root, canvas, ctx, source = null, mode = 'original', cell = 10, level = 128, info, seg;
+    function placeholder() {
+      const c = document.createElement('canvas'); c.width = 640; c.height = 400;
+      const g = c.getContext('2d');
+      const sky = g.createLinearGradient(0, 0, 0, 400); sky.addColorStop(0, '#1e3a5f'); sky.addColorStop(.6, '#e78a5a'); sky.addColorStop(1, '#f7d6a0');
+      g.fillStyle = sky; g.fillRect(0, 0, 640, 400);
+      g.fillStyle = '#ffe9b3'; g.beginPath(); g.arc(470, 190, 58, 0, Math.PI * 2); g.fill();
+      for (let i = 0; i < 3; i++) {
+        g.fillStyle = ['#2f5e57', '#1f4640', '#15302c'][i];
+        g.beginPath(); g.moveTo(0, 400);
+        for (let x = 0; x <= 640; x += 8) g.lineTo(x, 300 - i * 30 + Math.sin(x / (60 + i * 25) + i) * 22 + Math.cos(x / 17) * 5);
+        g.lineTo(640, 400); g.fill();
+      }
+      g.fillStyle = 'rgba(255,255,255,.85)'; g.font = '600 18px IBM Plex Sans, sans-serif'; g.fillText('sample.png · 640×400 · generated in-page', 20, 32);
+      return { img: c, w: 640, h: 400, label: 'sample.png (generated) · 640×400' };
+    }
+    function apply() {
+      if (!source) return;
+      canvas.width = source.w; canvas.height = source.h;
+      ctx.drawImage(source.img, 0, 0, source.w, source.h);
+      if (mode === 'original') return;
+      const id = ctx.getImageData(0, 0, source.w, source.h), d = id.data, w = source.w, hh = source.h;
+      if (mode === 'grayscale') {
+        for (let i = 0; i < d.length; i += 4) { const y = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]; d[i] = d[i + 1] = d[i + 2] = y; }
+      } else if (mode === 'threshold') {
+        for (let i = 0; i < d.length; i += 4) { const y = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]; const v = y > level ? 255 : 0; d[i] = d[i + 1] = d[i + 2] = v; }
+      } else if (mode === 'pixelate') {
+        for (let y = 0; y < hh; y += cell) for (let x = 0; x < w; x += cell) {
+          let r = 0, g = 0, b = 0, n = 0;
+          for (let yy = y; yy < Math.min(y + cell, hh); yy++) for (let xx = x; xx < Math.min(x + cell, w); xx++) { const i = (yy * w + xx) * 4; r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
+          r /= n; g /= n; b /= n;
+          for (let yy = y; yy < Math.min(y + cell, hh); yy++) for (let xx = x; xx < Math.min(x + cell, w); xx++) { const i = (yy * w + xx) * 4; d[i] = r; d[i + 1] = g; d[i + 2] = b; }
+        }
+      }
+      ctx.putImageData(id, 0, 0);
+    }
+    function load(file) {
+      if (!file || !file.type.startsWith('image/')) { info.textContent = 'That is not an image file. Try a PNG, JPEG, or WebP.'; info.classList.add('warn'); return; }
+      const rd = new FileReader();
+      rd.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, 900 / img.width);
+          source = { img, w: Math.round(img.width * scale), h: Math.round(img.height * scale), label: `${file.name} · ${img.width}×${img.height} · ${(file.size / 1024).toFixed(0)} KB${scale < 1 ? ' · downscaled for the demo' : ''}` };
+          info.classList.remove('warn'); info.textContent = source.label; apply();
+        };
+        img.src = rd.result;
+      };
+      rd.readAsDataURL(file);
+    }
+    function setMode(m) { mode = m; seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === m)); apply(); }
+    return {
+      mount(el) {
+        root = el; source = placeholder(); mode = 'original';
+        canvas = h('canvas', { 'aria-label': 'Processed image' }); ctx = canvas.getContext('2d', { willReadFrequently: true });
+        seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Filter' }, ['original', 'grayscale', 'pixelate', 'threshold'].map(m => h('button', { 'data-m': m, 'aria-pressed': m === mode, onclick: () => setMode(m) }, m[0].toUpperCase() + m.slice(1))));
+        const cellR = h('input', { type: 'range', min: 2, max: 40, value: cell, oninput: e => { cell = +e.target.value; if (mode === 'pixelate') apply(); } });
+        const lvlR = h('input', { type: 'range', min: 0, max: 255, value: level, oninput: e => { level = +e.target.value; if (mode === 'threshold') apply(); } });
+        const fileIn = h('input', { type: 'file', accept: 'image/*', id: 'img-file', onchange: e => load(e.target.files[0]) });
+        const drop = h('div', { class: 'drop' }, h('span', {}, 'Drop an image here, or ', h('label', { for: 'img-file' }, 'choose a file'), '. It never leaves your browser.'), fileIn);
+        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+        drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); load(e.dataTransfer.files[0]); });
+        info = h('div', { class: 'status' }, source.label);
+        root.append(h('div', { class: 'row' }, seg, h('label', { class: 'field' }, 'Cell', cellR), h('label', { class: 'field' }, 'Level', lvlR)), h('div', { class: 'frame' }, canvas), drop, info);
+        apply();
+      },
+      unmount() { source = null; }
+    };
+  })();
+
+  // ---------- 3D: three.js, one renderer for the life of the page ----------
+  const ThreeDemo = (() => {
+    let renderer, scene, camera, mesh, raf, root, wrap, ro, status;
+    let theta = 0.6, phi = 1.1, dist = 4.2, auto = !reduceMotion, dragging = false, last = null, wire = false, matKind = 'matte';
+    const mats = () => ({
+      matte: new THREE.MeshStandardMaterial({ color: 0x1794b0, roughness: 0.85, metalness: 0.05 }),
+      metal: new THREE.MeshStandardMaterial({ color: 0xd9d9d9, roughness: 0.25, metalness: 0.9 }),
+      normals: new THREE.MeshNormalMaterial()
+    });
+    function ensure() {
+      if (renderer) return true;
+      if (!window.THREE) return false;
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x223333, 0.9));
+      const key = new THREE.DirectionalLight(0xffffff, 0.9); key.position.set(3, 4, 5); scene.add(key);
+      mesh = new THREE.Mesh(new THREE.TorusKnotGeometry(0.9, 0.3, 180, 24), mats().matte);
+      scene.add(mesh);
+      return true;
+    }
+    function place() {
+      camera.position.set(dist * Math.sin(phi) * Math.sin(theta), dist * Math.cos(phi), dist * Math.sin(phi) * Math.cos(theta));
+      camera.lookAt(0, 0, 0);
+    }
+    function size() {
+      const w = wrap.clientWidth, hh = Math.max(280, Math.round(w * 0.6));
+      renderer.setSize(w, hh, false); renderer.domElement.style.height = hh + 'px';
+      camera.aspect = w / hh; camera.updateProjectionMatrix();
+    }
+    function loop() {
+      if (auto && !dragging) theta += 0.006;
+      place(); renderer.render(scene, camera);
+      raf = requestAnimationFrame(loop);
+    }
+    function setMat() { mesh.material.dispose(); mesh.material = mats()[matKind]; mesh.material.wireframe = wire; }
+    return {
+      mount(el) {
+        root = el;
+        wrap = h('div', { class: 'frame', style: 'cursor:grab' });
+        status = h('div', { class: 'status' });
+        if (!ensure()) { wrap.append(h('div', { style: 'padding:40px;text-align:center' }, 'three.js did not load from the CDN, so there is nothing to render. Reload to try again.')); root.append(wrap); return; }
+        wrap.append(renderer.domElement);
+        const onDown = e => { dragging = true; last = { x: e.clientX, y: e.clientY }; wrap.setPointerCapture(e.pointerId); wrap.style.cursor = 'grabbing'; };
+        const onMove = e => { if (!dragging) return; theta -= (e.clientX - last.x) * 0.008; phi = Math.min(2.9, Math.max(0.25, phi - (e.clientY - last.y) * 0.008)); last = { x: e.clientX, y: e.clientY }; };
+        const onUp = () => { dragging = false; wrap.style.cursor = 'grab'; };
+        wrap.addEventListener('pointerdown', onDown); wrap.addEventListener('pointermove', onMove); wrap.addEventListener('pointerup', onUp); wrap.addEventListener('pointercancel', onUp);
+        wrap.style.touchAction = 'none';
+        const seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Material' }, ['matte', 'metal', 'normals'].map(m => h('button', { 'aria-pressed': m === matKind, onclick: e => { matKind = m; seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b === e.currentTarget)); setMat(); } }, m[0].toUpperCase() + m.slice(1))));
+        const wireBtn = h('button', { class: 'btn small', 'aria-pressed': wire, onclick: () => { wire = !wire; mesh.material.wireframe = wire; wireBtn.setAttribute('aria-pressed', wire); } }, 'Wireframe');
+        const autoBtn = h('button', { class: 'btn small', 'aria-pressed': auto, onclick: () => { auto = !auto; autoBtn.setAttribute('aria-pressed', auto); } }, 'Auto-rotate');
+        root.append(h('div', { class: 'row' }, seg, wireBtn, autoBtn), wrap, status);
+        status.textContent = 'Drag to orbit · three.js r128 · one WebGLRenderer reused across visits so the browser never runs out of contexts';
+        size(); ro = new ResizeObserver(size); ro.observe(wrap);
+        cancelAnimationFrame(raf); loop();
+      },
+      unmount() { cancelAnimationFrame(raf); ro?.disconnect(); renderer?.domElement.remove(); }
+    };
+  })();
+
+  // ---------- VIDEO: generated feed by default, camera on request ----------
+  const VideoDemo = (() => {
+    let root, video, gen, gctx, raf, stream, cam = null, status, snaps, filter = 'none', t0;
+    function drawGen() {
+      const t = (performance.now() - t0) / 1000, w = gen.width, hh = gen.height;
+      gctx.fillStyle = '#0f1f24'; gctx.fillRect(0, 0, w, hh);
+      for (let i = 0; i < 5; i++) {
+        const x = w / 2 + Math.cos(t * 0.5 + i * 1.3) * w * 0.32, y = hh / 2 + Math.sin(t * 0.7 + i * 0.9) * hh * 0.3;
+        const g = gctx.createRadialGradient(x, y, 0, x, y, 120);
+        g.addColorStop(0, ['#7a4fd1', '#1794b0', '#d9573f', '#248f63', '#c98a18'][i]); g.addColorStop(1, 'rgba(0,0,0,0)');
+        gctx.fillStyle = g; gctx.globalAlpha = 0.85; gctx.fillRect(0, 0, w, hh);
+      }
+      gctx.globalAlpha = 1;
+      gctx.fillStyle = 'rgba(0,0,0,.35)'; for (let y = 0; y < hh; y += 4) gctx.fillRect(0, y, w, 1);
+      gctx.fillStyle = '#fff'; gctx.font = '600 16px IBM Plex Mono, monospace';
+      gctx.fillText('GENERATED FEED', 16, 28); gctx.fillText(new Date().toLocaleTimeString(), w - 130, 28);
+      raf = requestAnimationFrame(drawGen);
+    }
+    function useGenerated() {
+      stopCam();
+      cancelAnimationFrame(raf); t0 = performance.now(); drawGen();
+      stream = gen.captureStream ? gen.captureStream(30) : null;
+      if (stream) { video.srcObject = stream; video.play().catch(() => {}); status.textContent = 'Source: canvas.captureStream() → <video>. No permission needed, so this is the at-rest state.'; }
+      else status.textContent = 'This browser cannot turn a canvas into a stream. Try the camera.';
+    }
+    function stopCam() { cam?.getTracks().forEach(t => t.stop()); cam = null; }
+    async function useCamera(btn) {
+      status.classList.remove('warn');
+      try {
+        cam = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 360 }, audio: false });
+        cancelAnimationFrame(raf); video.srcObject = cam; video.play().catch(() => {});
+        status.textContent = 'Source: camera. Stopping tracks on leave releases the recording indicator.';
+      } catch (e) {
+        status.classList.add('warn');
+        status.textContent = e.name === 'NotAllowedError' ? 'Camera blocked (by you, or by this embedded frame). The generated feed stays on.' : `Camera unavailable: ${e.name}. The generated feed stays on.`;
+      }
+    }
+    function snapshot() {
+      const c = document.createElement('canvas'); c.width = 160; c.height = 90;
+      const cx = c.getContext('2d'); cx.filter = filter; cx.drawImage(video, 0, 0, 160, 90);
+      snaps.prepend(c); while (snaps.children.length > 4) snaps.lastChild.remove();
+    }
+    return {
+      mount(el) {
+        root = el;
+        video = h('video', { autoplay: true, muted: true, playsinline: true, 'aria-label': 'Live video' }); video.muted = true;
+        gen = document.createElement('canvas'); gen.width = 640; gen.height = 360; gctx = gen.getContext('2d');
+        status = h('div', { class: 'status' }); snaps = h('div', { class: 'snaps', 'aria-label': 'Snapshots' });
+        const sel = h('select', { 'aria-label': 'Filter', onchange: e => { filter = e.target.value; video.style.filter = filter; } },
+          [['none', 'No filter'], ['grayscale(1)', 'Grayscale'], ['sepia(.8)', 'Sepia'], ['invert(1)', 'Invert'], ['contrast(1.8) saturate(1.6)', 'Punchy']].map(([v, l]) => h('option', { value: v }, l)));
+        const camBtn = h('button', { class: 'btn primary', onclick: () => useCamera(camBtn) }, 'Use camera');
+        root.append(h('div', { class: 'row' }, camBtn, h('button', { class: 'btn', onclick: useGenerated }, 'Generated feed'), sel, h('button', { class: 'btn', onclick: snapshot }, 'Snapshot')), h('div', { class: 'frame' }, video), snaps, status);
+        useGenerated();
+      },
+      unmount() { cancelAnimationFrame(raf); stopCam(); stream?.getTracks().forEach(t => t.stop()); if (video) video.srcObject = null; }
+    };
+  })();
+
+  // ---------- AUDIO: waveform, mic recording, decode-and-play ----------
+  const AudioDemo = (() => {
+    let root, canvas, ctx, ac, analyser, mic, osc, rec, chunks, playing, raf, status, btns = {}, recorded = null, mode = 'idle';
+    function ensureCtx() { if (!ac) { ac = new (window.AudioContext || window.webkitAudioContext)(); analyser = ac.createAnalyser(); analyser.fftSize = 2048; } if (ac.state === 'suspended') ac.resume(); }
+    function draw() {
+      const w = canvas.width, hh = canvas.height; ctx.clearRect(0, 0, w, hh);
+      ctx.lineWidth = 2; ctx.strokeStyle = accentOf(root);
+      ctx.beginPath();
+      if (analyser && mode !== 'idle') {
+        const buf = new Uint8Array(analyser.fftSize); analyser.getByteTimeDomainData(buf);
+        for (let i = 0; i < buf.length; i++) { const x = i / buf.length * w, y = buf[i] / 255 * hh; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+      } else {
+        for (let x = 0; x < w; x++) { const y = hh / 2 + Math.sin(x / 18) * Math.sin(x / 140) * hh * 0.3; x ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+      }
+      ctx.stroke();
+      if (mode === 'recording') { ctx.fillStyle = '#D9573F'; ctx.beginPath(); ctx.arc(18, 18, 6, 0, Math.PI * 2); ctx.fill(); }
+      raf = requestAnimationFrame(draw);
+    }
+    function setMode(m, msg, warn) {
+      mode = m; status.textContent = msg || ''; status.classList.toggle('warn', !!warn);
+      btns.rec.disabled = m !== 'live'; btns.stop.disabled = m === 'idle'; btns.play.disabled = !recorded || m === 'recording';
+    }
+    async function useMic() {
+      ensureCtx(); stopAll();
+      try {
+        mic = await navigator.mediaDevices.getUserMedia({ audio: true });
+        ac.createMediaStreamSource(mic).connect(analyser);
+        setMode('live', 'Microphone live. Speak, then press Record.');
+      } catch (e) {
+        setMode('idle', e.name === 'NotAllowedError' ? 'Microphone blocked (by you, or by this embedded frame). The test tone still works.' : `Microphone unavailable: ${e.name}. The test tone still works.`, true);
+      }
+    }
+    function tone() {
+      ensureCtx(); stopAll();
+      osc = ac.createOscillator(); const g = ac.createGain(); g.gain.value = 0.15;
+      osc.type = 'triangle'; osc.frequency.value = 220;
+      const lfo = ac.createOscillator(); lfo.frequency.value = 0.5; const lg = ac.createGain(); lg.gain.value = 60; lfo.connect(lg).connect(osc.frequency); lfo.start();
+      osc.connect(g); g.connect(analyser); g.connect(ac.destination); osc.start(); osc._lfo = lfo;
+      setMode('tone', 'Synthesized tone through the same AnalyserNode the mic uses.');
+    }
+    function record() {
+      if (!mic) return;
+      chunks = []; rec = new MediaRecorder(mic);
+      rec.ondataavailable = e => chunks.push(e.data);
+      rec.onstop = async () => {
+        try {
+          const buf = await new Blob(chunks, { type: rec.mimeType }).arrayBuffer();
+          recorded = await ac.decodeAudioData(buf);
+          setMode('live', `Recorded ${recorded.duration.toFixed(1)} s (${rec.mimeType || 'default codec'}). Press Play.`);
+        } catch { setMode('live', 'Could not decode the recording in this browser.', true); }
+      };
+      rec.start(); setMode('recording', 'Recording…');
+    }
+    function play() {
+      ensureCtx(); if (!recorded) return;
+      playing?.stop(); playing = ac.createBufferSource(); playing.buffer = recorded;
+      playing.connect(analyser); playing.connect(ac.destination); playing.start();
+      setMode('playback', 'Playing back through decodeAudioData → AudioBufferSourceNode (no blob: URLs).');
+      playing.onended = () => { if (mode === 'playback') setMode(mic ? 'live' : 'idle', 'Playback finished.'); };
+    }
+    function stopAll() {
+      if (rec?.state === 'recording') rec.stop();
+      osc?.stop(); osc?._lfo?.stop(); osc = null;
+      playing?.stop(); playing = null;
+      mic?.getTracks().forEach(t => t.stop()); mic = null;
+    }
+    return {
+      mount(el) {
+        root = el;
+        canvas = h('canvas', { width: 800, height: 220, 'aria-label': 'Waveform' }); ctx = canvas.getContext('2d');
+        status = h('div', { class: 'status' });
+        btns.mic = h('button', { class: 'btn primary', onclick: useMic }, 'Use microphone');
+        btns.tone = h('button', { class: 'btn', onclick: tone }, 'Test tone');
+        btns.rec = h('button', { class: 'btn', onclick: record, disabled: true }, 'Record');
+        btns.stop = h('button', { class: 'btn', onclick: () => { if (mode === 'recording') { rec.stop(); } else { stopAll(); setMode('idle', 'Stopped. Tracks released, oscillator stopped.'); } }, disabled: true }, 'Stop');
+        btns.play = h('button', { class: 'btn', onclick: play, disabled: true }, 'Play recording');
+        root.append(h('div', { class: 'row' }, btns.mic, btns.tone, btns.rec, btns.stop, btns.play), h('div', { class: 'frame' }, canvas), status);
+        setMode('idle', 'Idle. Nothing is captured until you press a button — audio needs a user gesture.');
+        cancelAnimationFrame(raf); draw();
+      },
+      unmount() { cancelAnimationFrame(raf); stopAll(); recorded = null; if (ac) { ac.close().catch(() => {}); ac = null; analyser = null; } }
+    };
+  })();
+
+
+  // ---------- shared force-directed graph engine (used by Visualization and the reading composition) ----------
+  function makeGraph(canvas, data, opts = {}) {
+    const ctx = canvas.getContext('2d');
+    const nodes = data.nodes.map((n, i) => ({ ...n, x: Math.cos(i * 2.4) * 90, y: Math.sin(i * 2.4) * 70, vx: 0, vy: 0 }));
+    const byId = new Map(nodes.map(n => [n.id, n]));
+    const links = data.links.map(([a, b]) => ({ a: byId.get(a), b: byId.get(b) }));
+    let w = 0, hh = 0, raf, drag = null, hover = null, emph = new Set(), ro, labels = opts.labels !== false;
+    function fit() { const r = canvas.getBoundingClientRect(), dpr = devicePixelRatio || 1; w = r.width; hh = r.height; canvas.width = Math.round(w * dpr); canvas.height = Math.round(hh * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+    function step() {
+      for (const a of nodes) for (const b of nodes) {
+        if (a === b) continue;
+        const dx = b.x - a.x, dy = b.y - a.y, d2 = dx * dx + dy * dy + 1, d = Math.sqrt(d2), f = 2600 / d2;
+        a.vx -= f * dx / d; a.vy -= f * dy / d;
+      }
+      for (const { a, b } of links) {
+        const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1, f = (d - 95) * 0.025;
+        a.vx += f * dx / d; a.vy += f * dy / d; b.vx -= f * dx / d; b.vy -= f * dy / d;
+      }
+      for (const n of nodes) {
+        if (n === drag) { n.vx = n.vy = 0; continue; }
+        n.vx -= n.x * 0.012; n.vy -= n.y * 0.012; n.vx *= 0.82; n.vy *= 0.82; n.x += n.vx; n.y += n.vy;
+      }
+    }
+    function draw() {
+      const acc = accentOf(canvas), ink = inkOf(canvas), any = emph.size > 0;
+      ctx.clearRect(0, 0, w, hh); ctx.save(); ctx.translate(w / 2, hh / 2);
+      ctx.lineWidth = 1.2;
+      for (const { a, b } of links) {
+        const on = emph.has(a.id) && emph.has(b.id);
+        ctx.strokeStyle = on ? acc : ink; ctx.globalAlpha = on ? 0.9 : (any ? 0.12 : 0.28);
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      }
+      for (const n of nodes) {
+        const on = emph.has(n.id), r = 5 + (n.w || 1) * 2.2;
+        ctx.globalAlpha = on || !any ? 1 : 0.3;
+        ctx.fillStyle = on || n === hover ? acc : ink;
+        ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2); ctx.fill();
+        if (labels) { ctx.font = `${on ? '600' : '400'} 12px IBM Plex Sans, sans-serif`; ctx.fillStyle = ink; ctx.globalAlpha = on || !any ? 1 : 0.45; ctx.fillText(n.label, n.x + r + 5, n.y + 4); }
+      }
+      ctx.restore();
+    }
+    function loop() { step(); draw(); raf = requestAnimationFrame(loop); }
+    const at = e => { const r = canvas.getBoundingClientRect(), x = e.clientX - r.left - w / 2, y = e.clientY - r.top - hh / 2; return nodes.find(n => Math.hypot(n.x - x, n.y - y) < 14) || null; };
+    const onDown = e => { drag = at(e); if (drag) { canvas.setPointerCapture(e.pointerId); canvas.style.cursor = 'grabbing'; } };
+    const onMove = e => { hover = at(e); if (drag) { const r = canvas.getBoundingClientRect(); drag.x = e.clientX - r.left - w / 2; drag.y = e.clientY - r.top - hh / 2; } };
+    const onUp = () => { drag = null; canvas.style.cursor = 'grab'; };
+    canvas.addEventListener('pointerdown', onDown); canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerup', onUp); canvas.addEventListener('pointercancel', onUp);
+    fit(); ro = new ResizeObserver(fit); ro.observe(canvas); loop();
+    return {
+      nodes, links,
+      setEmphasis(ids) { emph = new Set(ids); },
+      setLabels(v) { labels = v; },
+      shake() { for (const n of nodes) { n.vx += (Math.random() - .5) * 40; n.vy += (Math.random() - .5) * 40; } },
+      add(label, toId) { const n = { id: 'n' + nodes.length, label, w: 1, x: (Math.random() - .5) * 40, y: (Math.random() - .5) * 40, vx: 0, vy: 0 }; nodes.push(n); byId.set(n.id, n); const to = byId.get(toId) || nodes[Math.floor(Math.random() * (nodes.length - 1))]; links.push({ a: n, b: to }); return n; },
+      destroy() { cancelAnimationFrame(raf); ro.disconnect(); }
+    };
+  }
+  const CONCEPTS = {
+    nodes: [
+      { id: 'gw', label: 'global workspace', w: 3 }, { id: 'att', label: 'attention', w: 2 }, { id: 'bc', label: 'broadcast', w: 2 },
+      { id: 'mod', label: 'specialist modules', w: 2 }, { id: 'comp', label: 'competition', w: 1 }, { id: 'wm', label: 'working memory', w: 2 },
+      { id: 'cons', label: 'conscious access', w: 2 }, { id: 'ign', label: 'ignition', w: 1 }, { id: 'rep', label: 'report', w: 1 },
+      { id: 'unc', label: 'unconscious processing', w: 1 }, { id: 'ai', label: 'AI architectures', w: 1 }, { id: 'sal', label: 'salience', w: 1 }
+    ],
+    links: [['gw', 'bc'], ['gw', 'att'], ['gw', 'mod'], ['mod', 'comp'], ['comp', 'att'], ['bc', 'cons'], ['cons', 'rep'], ['gw', 'wm'], ['ign', 'cons'], ['ign', 'bc'], ['unc', 'mod'], ['ai', 'gw'], ['sal', 'att'], ['sal', 'comp']]
+  };
+
+  // ---------- VISUALIZATION: data-driven node-link graph ----------
+  const VisualizationDemo = (() => {
+    let g, status, canvas;
+    return {
+      mount(root) {
+        canvas = h('canvas', { class: 'graph', style: 'height:340px', 'aria-label': 'Concept graph' });
+        status = h('div', { class: 'status' });
+        const labelsBtn = h('button', { class: 'btn small', 'aria-pressed': 'true', onclick: () => { const v = labelsBtn.getAttribute('aria-pressed') !== 'true'; labelsBtn.setAttribute('aria-pressed', v); g.setLabels(v); } }, 'Labels');
+        const update = () => status.textContent = `Force simulation on a 2D canvas · ${g.nodes.length} nodes, ${g.links.length} links · drag a node, hover to highlight`;
+        root.append(h('div', { class: 'row' },
+          h('button', { class: 'btn primary', onclick: () => { g.add(['revision', 'feedback', 'threshold', 'binding', 'prediction'][g.nodes.length % 5]); update(); } }, 'Add a concept'),
+          h('button', { class: 'btn', onclick: () => g.shake() }, 'Shake'),
+          h('button', { class: 'btn', onclick: () => g.setEmphasis(g.nodes.filter(n => n.w > 1).map(n => n.id)) }, 'Emphasize core'),
+          h('button', { class: 'btn', onclick: () => g.setEmphasis([]) }, 'Clear'),
+          labelsBtn), h('div', { class: 'frame' }, canvas), status);
+        g = makeGraph(canvas, CONCEPTS); update();
+      },
+      unmount() { g?.destroy(); g = null; }
+    };
+  })();
+
+  // ---------- COMPOSITION: reading-driven graph (visualization + text, bound by scroll) ----------
+  const ReadingGraphDemo = (() => {
+    const passages = [
+      { ids: ['gw', 'mod'], html: 'Global workspace theory starts from a crowd. The mind is a <mark>global workspace</mark> shared by many <mark>specialist modules</mark>, each good at one thing and mostly silent.' },
+      { ids: ['comp', 'att', 'sal'], html: 'The modules do not take turns politely. They enter a <mark>competition</mark>, and <mark>attention</mark> is the referee, weighing <mark>salience</mark> to decide which coalition wins.' },
+      { ids: ['bc', 'ign', 'cons'], html: 'The winner is <mark>broadcast</mark> to everyone at once. That sudden, self-reinforcing <mark>ignition</mark> is what the theory calls <mark>conscious access</mark>.' },
+      { ids: ['wm', 'rep', 'cons'], html: 'Once broadcast, content is held in <mark>working memory</mark> long enough to be used, combined, and turned into a <mark>report</mark>, which is the only evidence of <mark>conscious access</mark> we ever get from the outside.' },
+      { ids: ['unc', 'mod'], html: 'Everything the losing coalitions did still happened. <mark>Unconscious processing</mark> is not a smaller mind, it is the same <mark>specialist modules</mark> working without the microphone.' },
+      { ids: ['ai', 'gw', 'bc'], html: 'This is why <mark>AI architectures</mark> keep rediscovering the shape: many narrow experts, one shared <mark>global workspace</mark>, and a <mark>broadcast</mark> step that makes the winner available to all.' }
+    ];
+    let g, reader, auto = false, autoRaf, status;
+    function sync() {
+      const mid = reader.scrollTop + reader.clientHeight * 0.4;
+      let best = null, bd = Infinity;
+      for (const p of reader.querySelectorAll('p[data-ids]')) { const d = Math.abs(p.offsetTop + p.offsetHeight / 2 - mid); if (d < bd) { bd = d; best = p; } }
+      reader.querySelectorAll('p[data-ids]').forEach(p => p.toggleAttribute('data-on', p === best));
+      g.setEmphasis(best ? best.dataset.ids.split(',') : []);
+      status.textContent = best ? `Scroll position → passage ${[...reader.querySelectorAll('p[data-ids]')].indexOf(best) + 1} of ${passages.length} → emphasis set {${best.dataset.ids}}` : 'Scroll the prose; the graph follows.';
+    }
+    function tick() { if (!auto) return; reader.scrollTop += 0.6; if (reader.scrollTop + reader.clientHeight >= reader.scrollHeight - 1) auto = false; autoRaf = requestAnimationFrame(tick); }
+    return {
+      mount(root) {
+        reader = h('div', { class: 'reader frame', 'aria-label': 'Source text' }, h('div', { class: 'pad' }), passages.map(p => h('p', { 'data-ids': p.ids.join(','), html: p.html })), h('div', { class: 'pad' }));
+        reader.style.scrollBehavior = 'auto';
+        const canvas = h('canvas', { class: 'graph', 'aria-label': 'Concept graph following the text' });
+        status = h('div', { class: 'status' });
+        const autoBtn = h('button', { class: 'btn primary', 'aria-pressed': 'false', onclick: () => { auto = !auto; autoBtn.setAttribute('aria-pressed', auto); if (auto) tick(); } }, 'Read for me');
+        root.append(h('div', { class: 'row' }, autoBtn, h('button', { class: 'btn', onclick: () => { auto = false; autoBtn.setAttribute('aria-pressed', 'false'); reader.scrollTop = 0; } }, 'Back to top')),
+          h('div', { class: 'compose' }, reader, h('div', { class: 'frame' }, canvas)), status);
+        g = makeGraph(canvas, CONCEPTS, { labels: true });
+        reader.addEventListener('scroll', sync, { passive: true });
+        sync();
+      },
+      unmount() { auto = false; cancelAnimationFrame(autoRaf); g?.destroy(); g = null; }
+    };
+  })();
+
+
+  // ---------- COMPOSITION: ask-driven graph (text + visualization, bound by the answer stream) ----------
+  const AskGraphDemo = (() => {
+    const answers = {
+      'What is ignition?': `**Ignition** is the moment a coalition wins the **competition** and its content is **broadcast** across the **global workspace**. It is self-reinforcing: once enough **specialist modules** echo the signal, it locks in, and that lock-in is what the theory identifies with **conscious access**.`,
+      'Why do losers still matter?': `Because **unconscious processing** is not a lesser mind. The **specialist modules** that lost the **competition** still did their work; they simply were not **broadcast**. Their results can shape **attention** and **salience** on the next cycle, which is why priming works without any **report**.`,
+      'How does this map to AI?': `Modern **AI architectures** keep rediscovering the shape. Many narrow experts, a shared **global workspace**, and a **broadcast** step that makes the winner available to everyone. **Working memory** is the buffer that keeps a broadcast alive long enough to be used, and **attention** is the routing that decides what enters it.`
+    };
+    let g, out, status, timer, streaming = false;
+    function stream(q) {
+      const text = answers[q] || `No canned answer for “${q}” in this prototype. Pick a question above to watch the graph follow the answer.`;
+      const tokens = text.match(/\S+\s*|\s+/g) || [];
+      let i = 0, acc = '';
+      clearInterval(timer); streaming = true;
+      timer = setInterval(() => {
+        acc += tokens[i++];
+        out.innerHTML = renderMd(acc) + (i < tokens.length ? '<span class="caret" aria-hidden="true"></span>' : '');
+        out.scrollTop = out.scrollHeight;
+        const low = acc.toLowerCase(), ids = CONCEPTS.nodes.filter(n => low.includes(n.label.toLowerCase())).map(n => n.id);
+        g.setEmphasis(ids);
+        status.textContent = `Answer stream → ${i} tokens → emphasis set grows {${ids.join(',')}}`;
+        if (i >= tokens.length) { streaming = false; clearInterval(timer); }
+      }, reduceMotion ? 8 : 55);
+    }
+    return {
+      mount(root) {
+        out = h('div', { class: 'out md', style: 'min-height:0', 'aria-live': 'polite' });
+        status = h('div', { class: 'status' });
+        const canvas = h('canvas', { class: 'graph', 'aria-label': 'Concept graph following the answer' });
+        const left = h('div', { style: 'display:flex;flex-direction:column;gap:10px;min-height:0' },
+          h('div', { class: 'chips' }, Object.keys(answers).map(q => h('button', { class: 'chip', type: 'button', onclick: () => stream(q) }, q))), out);
+        root.append(h('div', { class: 'compose' }, left, h('div', { class: 'frame' }, canvas)), status);
+        g = makeGraph(canvas, CONCEPTS, { labels: true });
+        stream('What is ignition?');
+      },
+      unmount() { clearInterval(timer); g?.destroy(); g = null; }
+    };
+  })();
+
+
+  // ---------- VISUALIZATION / MAP kind: slippy map with generated tiles, Web Mercator, geolocation ----------
+  const MapDemo = (() => {
+    const T = 256, R = 128;
+    let canvas, ctx, status, raf, ro, drag = null, cache = new Map();
+    let center = { lon: 121.56, lat: 25.03 }, z = 4, you = null;
+    const places = [{ name: 'Taipei', lon: 121.56, lat: 25.03 }, { name: 'Tokyo', lon: 139.69, lat: 35.69 }, { name: 'San Francisco', lon: -122.42, lat: 37.77 }, { name: 'London', lon: -0.13, lat: 51.51 }, { name: 'Nairobi', lon: 36.82, lat: -1.29 }];
+    const world = (lon, lat, zz) => { const s = T * (1 << zz), la = lat * Math.PI / 180; return { x: (lon + 180) / 360 * s, y: (1 - Math.log(Math.tan(la) + 1 / Math.cos(la)) / Math.PI) / 2 * s }; };
+    const unworld = (x, y, zz) => { const s = T * (1 << zz), yy = Math.PI - 2 * Math.PI * y / s; return { lon: x / s * 360 - 180, lat: 180 / Math.PI * Math.atan(0.5 * (Math.exp(yy) - Math.exp(-yy))) }; };
+    // deterministic value noise in normalized world space so tiles agree across zoom levels
+    const hash = (x, y) => { let h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return h - Math.floor(h); };
+    const noise = (x, y) => { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf); const a = hash(xi, yi), b = hash(xi + 1, yi), c = hash(xi, yi + 1), d = hash(xi + 1, yi + 1); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; };
+    const fbm = (x, y) => { let s = 0, a = .5, f = 1; for (let i = 0; i < 5; i++) { s += a * noise(x * f, y * f); a *= .5; f *= 2.1; } return s; };
+    function tile(zz, tx, ty) {
+      const key = `${zz}/${tx}/${ty}`; if (cache.has(key)) return cache.get(key);
+      const c = document.createElement('canvas'); c.width = R; c.height = R; const g = c.getContext('2d'), img = g.createImageData(R, R), d = img.data, sz = 1 << zz;
+      for (let py = 0; py < R; py++) for (let px = 0; px < R; px++) {
+        const nx = (tx + px / R) / sz * 8, ny = (ty + py / R) / sz * 8, e = fbm(nx, ny), i = (py * R + px) * 4;
+        let r, gg, b;
+        if (e < 0.5) { const t = e / 0.5; r = 30 + 40 * t; gg = 70 + 80 * t; b = 120 + 90 * t; }
+        else if (e < 0.53) { r = 214; gg = 200; b = 150; }
+        else if (e < 0.72) { const t = (e - 0.53) / 0.19; r = 92 - 30 * t; gg = 150 - 40 * t; b = 80 - 20 * t; }
+        else { const t = Math.min(1, (e - 0.72) / 0.15); r = 120 + 120 * t; gg = 115 + 125 * t; b = 100 + 140 * t; }
+        d[i] = r; d[i + 1] = gg; d[i + 2] = b; d[i + 3] = 255;
+      }
+      g.putImageData(img, 0, 0); cache.set(key, c); return c;
+    }
+    function draw() {
+      const w = canvas.clientWidth, hh = canvas.clientHeight, c0 = world(center.lon, center.lat, z), left = c0.x - w / 2, top = c0.y - hh / 2, sz = 1 << z, acc = accentOf(canvas);
+      ctx.clearRect(0, 0, w, hh); ctx.imageSmoothingEnabled = true;
+      for (let tx = Math.floor(left / T); tx <= Math.floor((left + w) / T); tx++) for (let ty = Math.floor(top / T); ty <= Math.floor((top + hh) / T); ty++) {
+        if (ty < 0 || ty >= sz) continue;
+        const wx = ((tx % sz) + sz) % sz, x = tx * T - left, y = ty * T - top;
+        ctx.drawImage(tile(z, wx, ty), x, y, T, T);
+        ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1; ctx.strokeRect(x + .5, y + .5, T, T);
+        ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.font = '11px IBM Plex Mono, monospace'; ctx.fillText(`${z}/${wx}/${ty}`, x + 6, y + 14);
+      }
+      const pins = you ? [...places, you] : places;
+      for (const pl of pins) {
+        const p = world(pl.lon, pl.lat, z); let x = p.x - left; const y = p.y - top; const W = T * sz; x = ((x % W) + W) % W; if (x > w) x -= W;
+        ctx.fillStyle = pl === you ? '#1794B0' : acc; ctx.beginPath(); ctx.arc(x, y, 6, 0, 7); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#fff'; ctx.font = '600 12px IBM Plex Sans, sans-serif'; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 3; ctx.strokeText(pl.name, x + 10, y + 4); ctx.fillText(pl.name, x + 10, y + 4);
+      }
+      status.textContent = `zoom ${z} · center ${center.lon.toFixed(2)}, ${center.lat.toFixed(2)} · Web Mercator · ${cache.size} tiles generated in-page (no tile server reachable from this frame)`;
+    }
+    function fit() { const r = canvas.getBoundingClientRect(), dpr = devicePixelRatio || 1; canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); draw(); }
+    function setZoom(nz) { z = Math.max(1, Math.min(8, nz)); draw(); }
+    function flyTo(pl) { center = { lon: pl.lon, lat: pl.lat }; setZoom(Math.max(z, 5)); }
+    async function locate(btn) {
+      btn.disabled = true;
+      try {
+        const pos = await new Promise((res, rej) => navigator.geolocation ? navigator.geolocation.getCurrentPosition(res, rej, { timeout: 8000 }) : rej(new Error('unsupported')));
+        you = { name: 'You', lon: pos.coords.longitude, lat: pos.coords.latitude }; flyTo(you);
+      } catch (e) { status.classList.add('warn'); status.textContent = e.code === 1 ? 'Location blocked (by you, or by this embedded frame). The map still works; location is only an input to it.' : `Location unavailable: ${e.message || e.code}. The map still works.`; return; }
+      finally { btn.disabled = false; }
+      status.classList.remove('warn');
+    }
+    return {
+      mount(root) {
+        canvas = h('canvas', { class: 'map', 'aria-label': 'Slippy map with generated tiles' }); ctx = canvas.getContext('2d');
+        status = h('div', { class: 'status' });
+        const locBtn = h('button', { class: 'btn primary', onclick: () => locate(locBtn) }, 'Locate me');
+        root.append(h('div', { class: 'row' }, locBtn,
+          h('div', { class: 'seg', role: 'group', 'aria-label': 'Zoom' }, h('button', { onclick: () => setZoom(z - 1), 'aria-label': 'Zoom out' }, '−'), h('button', { onclick: () => setZoom(z + 1), 'aria-label': 'Zoom in' }, '+')),
+          h('div', { class: 'chips' }, places.map(pl => h('button', { class: 'chip', type: 'button', onclick: () => flyTo(pl) }, pl.name)))),
+          h('div', { class: 'frame' }, canvas), status);
+        canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); canvas.style.cursor = 'grabbing'; });
+        canvas.addEventListener('pointermove', e => { if (!drag) return; const c0 = world(center.lon, center.lat, z); const nc = unworld(c0.x - (e.clientX - drag.x), Math.max(0, Math.min(T * (1 << z), c0.y - (e.clientY - drag.y))), z); center = nc; drag = { x: e.clientX, y: e.clientY }; draw(); });
+        const up = () => { drag = null; canvas.style.cursor = 'grab'; };
+        canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
+        canvas.addEventListener('wheel', e => { e.preventDefault(); setZoom(z + (e.deltaY < 0 ? 1 : -1)); }, { passive: false });
+        fit(); ro = new ResizeObserver(fit); ro.observe(canvas);
+      },
+      unmount() { ro?.disconnect(); cache.clear(); you = null; }
+    };
+  })();
+
+  /* =====================================================================
+     CONTENT — this is what each lane's manifest + SKILL.md will hold.
+     mediums: skills/<id>/medium.json    compositions: compositions/<id>/composition.json
+     ===================================================================== */
+  const MEDIUMS = [
+    {
+      id: 'text', name: 'Text', accent: 'var(--acc-text)', hook: 'Streams, renders, never blocks', demo: TextDemo,
+      message: 'The app becomes quotable, and streaming makes it feel like it is thinking with you.',
+      why: `<p>Text is the cheapest medium to ship and the one people trust most, because they can skim it, search it and copy it. Almost every app needs it, and with language models it became a live medium: the answer arrives token by token, not as a page.</p><p>The hard part is no longer showing text, it is showing text that is still being written. Half-finished markdown, growing layout, a stop button that means something.</p><h3>Reach for it when</h3><ul><li>the content is instructions, answers, or anything people will quote</li><li>latency is visible and you can hide it by streaming</li><li>accessibility and search matter more than atmosphere</li></ul>`,
+      gotchas: ['Render markdown incrementally: an open code fence or an unclosed bold marker must not break layout mid-stream.', 'Never let the scroll position jump under the reader. Only auto-scroll when they are already at the bottom.', 'Count tokens client-side for the meter, but bill on the server; the two will never match exactly.', 'Screen readers need one live region per answer, not one per token. Announce at sentence boundaries.', 'Copy buttons must copy the source markdown, not the rendered HTML.'],
+      skill: `---
+name: text-medium
+description: Build streaming text UI on the web. Use when adding chat, generated answers, live transcripts, or any text that arrives progressively and renders as markdown.
+---
+
+# Text as a medium
+
+## What this medium does to the person
+Text makes an app quotable, searchable, and accountable; people trust what they can copy. Streaming adds presence: the app appears to think alongside the reader rather than hand down a finished page.
+
+## When to reach for this medium
+Text is right when people will read, quote, search, or copy the result. It is the default medium; choose another only when text is a worse fit.
+
+## Core browser APIs
+- Server-Sent Events or \`fetch()\` with a \`ReadableStream\` for token delivery
+- \`requestAnimationFrame\` or a short \`setInterval\` to batch DOM writes (never one write per token)
+- \`aria-live="polite"\` on the answer container, announced at sentence boundaries
+
+## UX rules that always apply
+- First token on screen under 500 ms, or show a skeleton that says what is happening.
+- Show a caret while streaming; remove it the moment the stream ends.
+- A visible Stop control while streaming, and a Copy control that copies source markdown.
+- Only auto-scroll when the reader is already at the bottom.
+
+## Reference implementation
+\`reference/StreamingText.tsx\` — incremental markdown renderer that tolerates open fences and unclosed emphasis, a token/latency meter, and a stop handle.
+
+## Gotchas
+- Incremental markdown must be forgiving; use a parser that can render partial input.
+- Keep layout stable: reserve width for the answer column so it does not reflow as text grows.
+- Do not trust client token counts for billing.`
+    },
+    {
+      id: 'audio', name: 'Audio', accent: 'var(--acc-audio)', hook: 'Capture, visualize, play back', demo: AudioDemo,
+      message: 'The app becomes a voice in the room, with the intimacy and the intrusion of one.',
+      why: `<p>Voice is the medium people already have; no keyboard, no reading. Audio lets an app listen (dictation, voice notes, commands) and speak (narration, alerts, generated speech). It is also the medium with the strongest privacy expectations: a live microphone is a promise.</p><p>On the web the whole pipeline is available: <code>getUserMedia</code> to capture, Web Audio to analyze and synthesize, <code>MediaRecorder</code> to encode.</p><h3>Reach for it when</h3><ul><li>hands or eyes are busy (driving, cooking, walking)</li><li>tone and emotion carry information that text loses</li><li>input is faster spoken than typed, like long notes</li></ul>`,
+      gotchas: ['An AudioContext must be created or resumed inside a user gesture, or it stays suspended and silent.', 'Embedded frames can block the microphone via Permissions-Policy before the user ever sees a prompt. Design the no-mic state first.', 'MediaRecorder codecs differ: Chrome gives webm/opus, Safari gives mp4/aac. Decode with decodeAudioData instead of assuming a format.', 'Stop every track when the user leaves, or the red recording indicator stays on and trust is gone.', 'Show the waveform. Silence with no feedback reads as broken.'],
+      skill: `---
+name: audio-medium
+description: Build microphone capture, waveform visualization, recording, and playback on the web. Use when adding voice notes, dictation, voice commands, or audio feedback.
+---
+
+# Audio as a medium
+
+## What this medium does to the person
+A live microphone or a speaking app is a presence in the room. It is intimate, hands-free, and emotional, and it is also an intrusion, so it must ask, show that it is listening, and leave when told.
+
+## When to reach for this medium
+Choose audio when hands or eyes are busy, when tone matters, or when speaking beats typing. Treat a live microphone as a promise to the user.
+
+## Core browser APIs
+- \`navigator.mediaDevices.getUserMedia({ audio: true })\` for capture
+- Web Audio: \`AudioContext\`, \`AnalyserNode\` for waveforms, \`OscillatorNode\` for synthesized feedback
+- \`MediaRecorder\` for encoding; \`decodeAudioData\` + \`AudioBufferSourceNode\` for playback
+
+## UX rules that always apply
+- Nothing captures until a user gesture. Create or resume the AudioContext inside that gesture.
+- Always show a live level or waveform; silence with no feedback reads as broken.
+- A Stop control that releases every track, visibly.
+- A working state with no microphone: permission denied, no device, or an embedded frame that blocks it.
+
+## Reference implementation
+\`reference/Recorder.tsx\` — mic capture with waveform, MediaRecorder recording, decode-and-play playback, synthesized fallback tone, and full teardown on unmount.
+
+## Gotchas
+- Codec output differs by browser; never assume webm.
+- Avoid \`blob:\` URLs in locked-down environments; decode to a buffer instead.
+- Release tracks on unmount or the recording indicator persists.`
+    },
+    {
+      id: 'video', name: 'Video', accent: 'var(--acc-video)', hook: 'Live frames, filters, snapshots', demo: VideoDemo,
+      message: 'The app becomes a witness; time is the content.',
+      why: `<p>Video is the richest live medium: a camera feed, a screen share, a rendered animation, or a file. Users judge it in milliseconds, so frame rate and startup time matter more than resolution.</p><p>The trick on the web is that a <code>&lt;video&gt;</code> element does not care where frames come from. A camera, a canvas, or a remote peer all arrive as a <code>MediaStream</code>, which means you can build and test the whole UI with a generated feed before you ever ask for a camera.</p><h3>Reach for it when</h3><ul><li>the subject moves and a still would lose the point</li><li>you need presence: calls, live previews, walkthroughs</li><li>you are capturing something to review later</li></ul>`,
+      gotchas: ['Autoplay only works muted. Set the muted property in JS, not just the attribute, or some browsers refuse.', 'Use playsinline or iOS will fullscreen the element.', 'Camera permission can be blocked by an embedding frame, so the generated feed must be a complete experience on its own.', 'CSS filters on video are free; pixel processing costs a canvas copy per frame, so throttle it.', 'Stop tracks on unmount. Detaching the element is not enough.'],
+      skill: `---
+name: video-medium
+description: Build live video on the web from camera, canvas, or stream sources, with filters and snapshots. Use when adding camera capture, live previews, video calls, or recorded walkthroughs.
+---
+
+# Video as a medium
+
+## What this medium does to the person
+Video makes the app a witness. Time itself becomes the content: what happened, in what order, at what pace. People judge it in milliseconds and forgive resolution before they forgive lag.
+
+## When to reach for this medium
+Choose video when motion carries the meaning or when presence matters. Optimize for time-to-first-frame and steady frame rate before resolution.
+
+## Core browser APIs
+- \`<video autoplay muted playsinline>\` with \`srcObject\` for any \`MediaStream\`
+- \`getUserMedia({ video })\` for the camera; \`canvas.captureStream(fps)\` for generated or processed feeds
+- CSS \`filter\` for cheap looks; 2D canvas \`drawImage(video)\` for snapshots and pixel work
+
+## UX rules that always apply
+- Build the UI on a generated feed first so it works with no camera and no permission.
+- Show the source and its state (camera, generated, paused) in words, not just an icon.
+- Snapshot and record controls should be one tap and confirm visibly.
+- Release the camera the moment the user leaves the feature.
+
+## Reference implementation
+\`reference/LiveVideo.tsx\` — generated feed via captureStream as the default source, camera opt-in with a graceful denial path, CSS filter switching, and snapshot strip.
+
+## Gotchas
+- Set \`video.muted = true\` in JS for autoplay to succeed.
+- Frame-by-frame pixel processing needs throttling; CSS filters do not.
+- Stopping tracks is the only way to turn the camera indicator off.`
+    },
+    {
+      id: 'image', name: 'Image', accent: 'var(--acc-image)', hook: 'Upload, transform, preview', demo: ImageDemo,
+      message: 'The person shows instead of tells.',
+      why: `<p>Images are how people show an app something they cannot describe: a receipt, a whiteboard, a screenshot, a face. The medium is half about getting the file in (drop, paste, pick, capture) and half about doing something visible with it before any upload.</p><p>Everything here runs locally. A canvas gives you pixels; pixels give you filters, crops, thumbnails, and previews without a server round trip.</p><h3>Reach for it when</h3><ul><li>the input is visual and typing it would be slower or lossy</li><li>people need to see the result of a change before committing</li><li>privacy matters and processing can stay on the device</li></ul>`,
+      gotchas: ['Read files with FileReader as data URLs or decode with createImageBitmap; never trust the file extension.', 'Large photos (12–48 MP) will freeze the tab if you run getImageData on them. Downscale first.', 'EXIF orientation: phone photos may arrive rotated. Use image-orientation: from-image or createImageBitmap with imageOrientation.', 'Cross-origin images taint the canvas and getImageData throws. Same-origin or CORS headers only.', 'Support paste (Ctrl/Cmd+V) and drop, not just the file picker.'],
+      skill: `---
+name: image-medium
+description: Build image input and on-device processing on the web: drop, paste, pick, preview, filter, crop, thumbnail. Use when adding photo upload, screenshots, avatars, or visual input.
+---
+
+# Image as a medium
+
+## What this medium does to the person
+Images let a person show instead of tell. The app becomes something you can hand things to: a receipt, a whiteboard, a face. Processing on the device keeps that gesture private.
+
+## When to reach for this medium
+Choose images when the input is visual, when people must preview a change before committing, or when processing should stay on the device.
+
+## Core browser APIs
+- \`<input type="file" accept="image/*">\`, drag-and-drop, and paste events for getting files in
+- \`FileReader\` / \`createImageBitmap\` to decode; 2D canvas \`getImageData\` / \`putImageData\` for pixel work
+- \`canvas.toBlob()\` for exporting thumbnails and processed results
+
+## UX rules that always apply
+- Accept drop, paste, and pick. Say so in the drop zone.
+- Show the file name, dimensions, and size once loaded.
+- Downscale before pixel work so the tab never freezes; say when you did.
+- Process locally by default and tell the user the image never leaves the browser.
+
+## Reference implementation
+\`reference/ImageLab.tsx\` — drop zone with picker fallback, generated sample image at rest, grayscale, pixelate, and threshold filters on ImageData, with parameter sliders.
+
+## Gotchas
+- Never run getImageData on a full-resolution phone photo.
+- Handle EXIF orientation or portrait photos land sideways.
+- Cross-origin images taint the canvas.`
+    },
+    {
+      id: 'drawing', name: 'Drawing', accent: 'var(--acc-drawing)', hook: 'Draw, annotate, whiteboard', demo: CanvasDemo,
+      message: 'The hand thinks, and the app is the surface it thinks on.',
+      why: `<p>Drawing is the freeform medium: sketching, annotation, whiteboards, signatures. The input is a pen, a finger, or a mouse, and the output is whatever you render. It is the medium that feels most like a physical tool, so latency and pressure fidelity decide whether it feels good.</p><p>The 2D canvas API is small, but the input layer around it (Pointer Events, coalesced events, pressure, palm rejection) is where the craft is.</p><h3>Reach for it when</h3><ul><li>people need to point at or mark up something spatially</li><li>the output is a picture, a sketch, or a signature</li><li>structure would get in the way of a quick gesture</li></ul>`,
+      gotchas: ['Use Pointer Events, not mouse or touch events, so pen, finger, and mouse share one code path.', 'Set touch-action: none on the canvas or the page will scroll instead of drawing.', 'Scale the backing store by devicePixelRatio or strokes look blurry on every modern screen.', 'Read getCoalescedEvents() during fast strokes or you get polygons instead of curves.', 'Keep strokes as data (points, pressure, color) so undo, resize, and export are replays, not pixel surgery.'],
+      skill: `---
+name: drawing-medium
+description: Build freeform drawing, annotation, and whiteboard surfaces on the web with Pointer Events and 2D canvas. Use when adding sketching, markup, or signatures. For data-driven node-link graphs and charts use visualization-medium instead.
+---
+
+# Drawing as a medium
+
+## What this medium does to the person
+Drawing makes the app a surface the hand thinks on. Latency and pressure fidelity decide whether it feels like a tool or a form; structure gets out of the way of the gesture.
+
+## When to reach for this medium
+Choose drawing when people need to mark, point, sketch, or sign, and when structure would slow the gesture down. If the picture is computed from data rather than drawn by a hand, that is visualization, not drawing.
+
+## Core browser APIs
+- Pointer Events (\`pointerdown\`/\`move\`/\`up\`) with \`setPointerCapture\` and \`getCoalescedEvents()\`
+- \`pressure\`, \`tiltX\`/\`tiltY\`, and \`pointerType\` for pen-aware rendering
+- 2D canvas with a \`devicePixelRatio\`-scaled backing store; \`ResizeObserver\` to refit
+
+## UX rules that always apply
+- Strokes appear under the pointer with no visible lag; render incrementally, redraw fully only on undo or resize.
+- Pressure changes the width on pen and touch; mouse gets a steady width.
+- Undo and Clear are always visible. Undo removes the last stroke, not the last pixel.
+- Keep strokes as data so resize, export, and sync are replays.
+
+## Reference implementation
+\`reference/Sketchpad.tsx\` — pressure-aware brush, coalesced-event smoothing, swatches and size, undo and clear from a stroke list, DPR-correct backing store.
+
+## Gotchas
+- \`touch-action: none\` on the surface or the page scrolls.
+- Without DPR scaling everything looks blurry.
+- Never store only pixels; you lose undo and resolution.`
+    },
+    {
+      id: 'visualization', name: 'Visualization', accent: 'var(--acc-viz)', hook: 'Graphs, charts, spatial data', demo: VisualizationDemo,
+      message: 'The whole is visible before the parts.',
+      kinds: [
+        {
+          id: 'map', name: 'Map', folder: 'visualization-map', hook: 'Tiles, projection, location', demo: MapDemo,
+      message: 'Where is the content.',
+          why: `<p>A map is a visualization whose data domain is the surface of the Earth. It shares the lane's concerns (a camera, hit testing, emphasis) and adds its own: a projection from longitude and latitude to pixels, a pyramid of image tiles fetched from a provider, and a new input, the device's location.</p><p>That last part is why Map is a kind and not just a demo. Its skill has to cover tile services, attribution, keys, projections, and a permission prompt, none of which the general visualization skill should carry.</p><h3>Reach for it when</h3><ul><li>where something is matters more than what it is</li><li>people will pan, zoom, and locate themselves</li><li>the data has coordinates, not just relations</li></ul><p>This demo generates its own tiles in the page because the artifact frame cannot reach a tile server. The projection, the tile grid, the zoom pyramid, and the marker math are the real thing.</p>`,
+          gotchas: ['Web Mercator is the tile standard, and it is wrong near the poles and for area comparisons. Say so in the UI when it matters.', 'Tiles are addressed z/x/y and wrap in x, not in y. Clamp latitude, wrap longitude.', 'Attribution is a license term for almost every tile provider, not a courtesy. Render it always.', 'Geolocation needs HTTPS and a user gesture, can be blocked by an embedding frame, and returns nothing on desktops without a fix. The map must work without it.', 'Do not fetch tiles for zoom levels the user is flying through. Debounce zoom, cancel stale requests, cache what came back.'],
+          skill: `---
+name: visualization-map
+description: Build an interactive map on the web: tile layers, Web Mercator projection, pan and zoom, markers, and device location. Use when adding a map, store locator, route view, or any view of geographic data. A kind of visualization-medium.
+---
+
+# Map (kind of Visualization)
+
+## What this medium does to the person
+A map makes where the content. Every other fact hangs off a position, and the person expects to find themselves on it.
+
+## What this medium does to the person
+Visualization shows the whole before the parts. People see structure first, then find their place in it. The app becomes a map of something that had no shape before.
+
+## What this kind is
+A visualization of geographic data. Inherits the lane's camera, hit testing, and emphasis; adds projection, tile pyramid, provider, and location input.
+
+## Core building blocks
+- Web Mercator: \`lon/lat → world pixels at zoom z\`, tile = floor(px / 256)
+- A tile cache keyed \`z/x/y\`; wrap x, clamp y
+- A provider (OpenStreetMap, MapTiler, Mapbox) with its attribution and key handled server-side or by domain restriction
+- \`navigator.geolocation.getCurrentPosition\` behind a user gesture, with a no-location path
+- Or a library that does all of the above (MapLibre GL, Leaflet), which is the right call for production
+
+## UX rules that always apply
+- Attribution visible at all times.
+- Locate is a button, never automatic. Explain when it is blocked.
+- Zoom and pan feel instant: draw cached tiles first, fill in fetched ones.
+- Markers keep a stable pixel size across zoom levels; areas scale.
+
+## Reference implementation
+\`reference/SlippyMap.tsx\` — projection helpers, tile cache with a generated fallback tile, drag pan and wheel zoom, marker layer, locate-me with graceful denial.
+
+## Gotchas
+- Mercator distorts area; do not compare sizes on it.
+- Debounce zoom, cancel stale tile requests.
+- Geolocation fails silently on many desktops; design for it.`
+        }
+      ],
+      why: `<p>Visualization is the medium where the picture is computed from data. Node-link graphs, timelines, charts, maps. Nobody draws it; the app lays it out, and the person explores it by dragging, hovering, zooming, and selecting.</p><p>It shares a canvas with Drawing and nothing else. The concerns are layout (a force simulation here), hit testing, a camera, and emphasis: making the part that matters right now stand out from the rest.</p><h3>Reach for it when</h3><ul><li>the content is a structure: relations, sequences, positions, quantities</li><li>people need to see the whole and then find their part of it</li><li>the picture must update as the data changes</li></ul>`,
+      gotchas: ['Keep the simulation and the drawing separate. Layout mutates positions; draw reads them. Mixing them makes every feature a physics bug.', 'Hit testing in screen space, not data space. Apply the camera transform in both directions or dragging drifts.', 'Emphasis is a set, not a single selected node. Most real questions light up a subgraph.', 'Damp the simulation and let it settle, or the page never stops burning CPU. Stop the loop entirely when it has converged.', 'Labels are the accessibility story. A canvas is a bitmap to a screen reader, so mirror the node list in the DOM or an aria description.'],
+      skill: `---
+name: visualization-medium
+description: Build data-driven graphs, charts, and spatial views on the web with a 2D canvas: layout simulation, hit testing, camera, and emphasis. Use when adding node-link graphs, concept maps, timelines, or explorable charts.
+---
+
+# Visualization as a medium
+
+## When to reach for this medium
+Choose visualization when the picture is computed from data and people explore it rather than draw it. Structure, relations, and quantities are the content.
+
+## Core browser APIs
+- 2D canvas with a \`devicePixelRatio\`-scaled backing store and a translate/scale camera
+- \`requestAnimationFrame\` loop that runs a layout step then a draw step
+- Pointer Events for drag, hover, and select, with hit testing in screen space
+- \`ResizeObserver\` so the view refits when its container changes
+
+## UX rules that always apply
+- Something readable in the first frame: seed positions on a circle, never all at the origin.
+- Hover highlights, drag moves, click selects. Keep those three consistent everywhere.
+- Emphasis is a set of ids; dim everything outside it rather than hiding it.
+- Mirror labels in the DOM for screen readers and search.
+
+## Reference implementation
+\`reference/ForceGraph.tsx\` — force-directed layout (repulsion, springs, centering, damping), drag and hover hit testing, weighted nodes, a \`setEmphasis(ids)\` API, add and shake helpers. The same module is composed by \`compositions/reading-graph\`.
+
+## Gotchas
+- Separate simulation from drawing.
+- Transform pointer coordinates through the camera before hit testing.
+- Stop the loop once the layout settles.`
+    },
+    {
+      id: 'webgl', name: '3D', accent: 'var(--acc-3d)', hook: 'Orbit, light, material', demo: ThreeDemo,
+      message: 'The thing has a back.',
+      why: `<p>3D is the medium for things that exist in space: products, rooms, molecules, maps, game worlds. It answers questions a flat picture cannot, like what is behind, how big, how does it fit. It is also the most expensive medium in every dimension: bundle size, GPU time, battery, and authoring.</p><p>On the web that means WebGL (and increasingly WebGPU) through a library like three.js. The library is the easy part; the discipline is in resource management, because the browser hands you a small number of GPU contexts and will not give them back easily.</p><h3>Reach for it when</h3><ul><li>spatial relationships are the content</li><li>people need to rotate, zoom, or walk through something</li><li>a still render would raise more questions than it answers</li></ul>`,
+      gotchas: ['Browsers cap live WebGL contexts (around 16). Create one renderer and reuse it; never one per mount.', 'Dispose geometries, materials, and textures explicitly. Garbage collection does not free GPU memory.', 'Pin the library version and load the UMD build from a CDN you can reach; ESM-only builds fail silently under a strict CSP.', 'Cap devicePixelRatio at 2 or phones will render 3× pixels and throttle within seconds.', 'Auto-rotation should respect prefers-reduced-motion.'],
+      skill: `---
+name: webgl-medium
+description: Build interactive 3D scenes on the web with three.js: orbit controls, lighting, materials, and safe GPU resource handling. Use when adding product viewers, spatial visualizations, or 3D playgrounds.
+---
+
+# 3D as a medium
+
+## What this medium does to the person
+3D gives the thing a back. People stop reading and start handling: rotate, approach, look behind. The app becomes an object rather than a page.
+
+## When to reach for this medium
+Choose 3D when spatial relationships are the content and people need to rotate, zoom, or move through it. Expect it to be the most expensive medium you ship.
+
+## Core browser APIs
+- WebGL via three.js (\`WebGLRenderer\`, \`Scene\`, \`PerspectiveCamera\`, lights, \`MeshStandardMaterial\`)
+- Pointer Events for a small custom orbit; \`ResizeObserver\` to resize the renderer and camera aspect
+- \`renderer.setPixelRatio(Math.min(devicePixelRatio, 2))\`
+
+## UX rules that always apply
+- Something visible within the first frame: a lit object, not a black box.
+- Drag to orbit is the baseline interaction; say so in words near the canvas.
+- Auto-rotate only when \`prefers-reduced-motion\` is not set, and provide a toggle.
+- Fall back to a message, not a blank space, if the library or WebGL is unavailable.
+
+## Reference implementation
+\`reference/OrbitScene.tsx\` — single shared renderer reused across mounts, torus knot with matte, metal, and normal materials, wireframe toggle, drag-to-orbit, reduced-motion aware auto-rotate.
+
+## Gotchas
+- One renderer for the page. Mount attaches its canvas; unmount detaches it.
+- Dispose materials when you swap them.
+- Load the pinned UMD build before any script that touches \`THREE\`.`
+    }
+  ];
+
+
+  const COMPOSITIONS = [
+    {
+      id: 'reading-graph', name: 'Reading-driven graph', accent: 'var(--acc-comp)', hook: 'Prose scroll reveals the graph', demo: ReadingGraphDemo,
+      message: 'Reading becomes navigation.',
+      mediums: ['visualization', 'text'], binding: 'scroll position → emphasis set', example: 'mindgraph',
+      why: `<p>A concept graph on its own is a map without a route. Prose on its own is a route without a map. Bind them and the reader gets both: they read at their own pace, and the graph lights up the concepts the current passage is about.</p><p>This is the pattern behind mindgraph, where a digested transcript becomes a force-directed graph plus a Source pane, and scrolling the prose spotlights the graph.</p><h3>The binding</h3><ul><li><strong>Signal:</strong> the reader's scroll position, resolved to one active passage</li><li><strong>Contract:</strong> each passage declares the concept ids it is about</li><li><strong>Effect:</strong> the graph's emphasis set becomes those ids; everything else dims</li></ul><h3>Built from</h3><ul><li>Visualization: the graph, its layout, and the emphasis API</li><li>Text: the passages, marked up with the concepts they mention</li></ul>`,
+      gotchas: ['Resolve scroll to one passage with a fixed reading line (around 40% down the pane), not to whatever is intersecting. Two passages half-visible must not fight.', 'Passages declare ids; the graph never parses prose. Keep the contract in data so the two sides can evolve separately.', 'Emphasis changes should be calm: dim, do not remove. Layout must not jump when the set changes.', 'Auto-scroll is a convenience, not the default. Reading speed belongs to the reader.', 'Both parts must work alone. The graph without prose is still the Visualization lane; the prose without the graph is still readable text.'],
+      skill: `---
+name: reading-graph
+description: Bind a scrolling text to a concept graph so the active passage sets the graph's emphasis. Use when building reading surfaces over transcripts, essays, or papers where a map of concepts should follow the reader. Composes visualization-medium and text-medium.
+---
+
+# Reading-driven graph
+
+## What this composition does to the person
+Bound by scroll, prose and graph turn reading into navigation: the reader moves through the text and watches where they are on the map of ideas.
+
+## What this composition is
+Prose and a concept graph, bound by scroll position. The reader scrolls; one passage is active; the graph emphasizes that passage's concepts. The pattern behind mindgraph's Source pane and graph canvas.
+
+## Parts (install these first)
+- \`visualization-medium\` for the graph: layout, hit testing, and \`setEmphasis(ids)\`
+- \`text-medium\` for the passages and their markup
+
+## The binding contract
+- Each passage carries \`data-ids\`, the concept ids it is about.
+- A reading line at 40% of the pane's height picks the single active passage on every scroll event.
+- The active passage's ids become the graph's emphasis set. Nothing else changes; layout stays put.
+
+## UX rules that always apply
+- Dim, never hide, the concepts outside the active set.
+- Mark the active passage in the prose too, so both sides agree visibly.
+- Optional auto-read scrolls slowly and stops at the end; the reader can always take over.
+
+## Reference implementation
+\`reference/ReadingGraph.tsx\` — passage list with ids, reading-line resolver, and a ForceGraph from the visualization skill driven through \`setEmphasis\`.
+
+## Gotchas
+- Fixed reading line, not intersection ratios.
+- Ids live in data, never inferred from text at runtime.
+- Keep the two parts independently usable.`
+    },
+    {
+      id: 'ask-graph', name: 'Ask-driven graph', accent: 'var(--acc-comp)', hook: 'The answer lights up the map', demo: AskGraphDemo,
+      message: 'Asking draws the map.',
+      mediums: ['text', 'visualization'], binding: 'answer stream → emphasis set', example: 'mindgraph Ask pane',
+      why: `<p>Reading is one way into a graph. Asking is the other. A person types a question, an answer streams back, and every concept the answer cites lights up on the map as it is mentioned. By the end of the answer the reader has both a paragraph and a subgraph, and they agree.</p><p>This is the pattern behind mindgraph's Ask pane, where a live agent answers over the digested graph and the canvas follows.</p><h3>The binding</h3><ul><li><strong>Signal:</strong> the answer text as it streams, token by token</li><li><strong>Contract:</strong> concepts are matched by label (or, in the real thing, by ids the model is asked to cite)</li><li><strong>Effect:</strong> the emphasis set grows as concepts are mentioned; it never shrinks mid-answer</li></ul><h3>Built from</h3><ul><li>Text: the question input and the streamed, markdown-rendered answer</li><li>Visualization: the graph and its emphasis API</li></ul>`,
+      gotchas: ['Ask the model to cite concept ids explicitly rather than matching labels in prose. Label matching is fine for a demo and wrong for synonyms, plurals, and languages.', 'Grow the emphasis set during a stream; only reset it when a new question starts. Flicker on every token is unreadable.', 'Throttle graph updates to the render frame, not to every token.', 'Show the answer even if the graph is empty. Text must stand alone.', 'A Stop control stops both the stream and the growth of the set.'],
+      skill: `---
+name: ask-graph
+description: Bind a streamed answer to a concept graph so cited concepts light up as they are mentioned. Use when building question-answer surfaces over a digested graph, knowledge map, or concept timeline. Composes text-medium and visualization-medium.
+---
+
+# Ask-driven graph
+
+## What this composition does to the person
+Bound by the answer stream, a question becomes a way of drawing the map. Each answer leaves a lit subgraph behind, so curiosity has a visible trail.
+
+## What this composition is
+A question box, a streamed answer, and a concept graph. As the answer arrives, each concept it cites joins the graph's emphasis set. The pattern behind mindgraph's Ask pane.
+
+## Parts (install these first)
+- \`text-medium\` for the input and the incrementally rendered answer
+- \`visualization-medium\` for the graph and \`setEmphasis(ids)\`
+
+## The binding contract
+- The answer producer cites concepts by id (in a demo, by label match).
+- On each render frame, the emphasis set is the union of everything cited so far in this answer.
+- A new question resets the set. Stop freezes it.
+
+## UX rules that always apply
+- The set grows, never flickers. Update on frames, not on tokens.
+- The answer is readable without the graph; the graph is explorable without the answer.
+- Keep the last answer's emphasis until the next question starts.
+
+## Reference implementation
+\`reference/AskGraph.tsx\` — question chips, streamed markdown answer, label-to-id resolver, frame-throttled emphasis growth on a ForceGraph from the visualization skill.
+
+## Gotchas
+- Ids over labels in production.
+- Union, not replace, during a stream.
+- Text stands alone.`
+    }
+  ];
+  const ALL = [...MEDIUMS, ...COMPOSITIONS];
+
+  // examples live in each manifest's `examples` field: who made it, where it is, what it shows about the lane
+  const gh = r => `https://github.com/${r}`;
+  const EXAMPLES = {
+    text: [
+      { name: 'mindsizer', url: gh('funclosure/mindsizer'), by: 'you', note: 'Digests dense writing into an interactive deck. Text is the input and the output, with interactive slides in between.' },
+      { name: 'weaving-shuttle', url: gh('funclosure/weaving-shuttle'), by: 'you', note: 'A two-axis reading surface: threads run horizontally as sequence, depth links run vertically as association.' },
+      { name: 'streamdown', url: gh('vercel/streamdown'), by: 'oss', note: 'A markdown renderer built for streaming. Tolerates unterminated blocks mid-stream, which is the hard part of this lane.' },
+      { name: 'marked', url: gh('markedjs/marked'), by: 'oss', note: 'Fast markdown compiler; the baseline most incremental renderers wrap.' }
+    ],
+    audio: [
+      { name: 'wavesurfer.js', url: gh('katspaugh/wavesurfer.js'), by: 'oss', note: 'Waveform rendering and interaction over Web Audio and audio elements.' },
+      { name: 'Tone.js', url: gh('Tonejs/Tone.js'), by: 'oss', note: 'Web Audio framework for synthesis and scheduling. The test-tone path, grown up.' }
+    ],
+    video: [
+      { name: 'TimeCliper', by: 'you', private: true, note: 'iOS app that loads a YouTube transcript so you clip the exact moment without scrubbing. Video bound to text by time.' },
+      { name: 'video.js', url: gh('videojs/video.js'), by: 'oss', note: 'Player with a plugin ecosystem; the reference for controls, captions, and multiple sources.' },
+      { name: 'hls.js', url: gh('video-dev/hls.js'), by: 'oss', note: 'Adaptive streaming in the browser through Media Source Extensions.' }
+    ],
+    image: [
+      { name: 'screenshot-maker', url: gh('funclosure/screenshot-maker'), by: 'you', note: 'Composes whole App Store screenshot sets from one manifest. Image as the output of a pipeline, rendered in the browser.' },
+      { name: 'Squoosh', url: gh('GoogleChromeLabs/squoosh'), by: 'oss', note: 'In-browser image compression with codecs compiled to WebAssembly. The on-device processing ideal.' },
+      { name: 'Cropper.js', url: gh('fengyuanchen/cropperjs'), by: 'oss', note: 'Cropping, rotating, and scaling with a canvas result.' }
+    ],
+    drawing: [
+      { name: 'komorebi', url: gh('funclosure/komorebi'), by: 'you', note: 'A procedural tree-shadow backdrop you tune in the browser. The canvas as a generative surface rather than an input.' },
+      { name: 'Excalidraw', url: gh('excalidraw/excalidraw'), by: 'oss', note: 'Hand-drawn style whiteboard; the state of the art for collaborative sketching.' },
+      { name: 'perfect-freehand', url: gh('steveruizok/perfect-freehand'), by: 'oss', note: 'Pressure-sensitive stroke outlines from pointer input. The math behind brushes that feel right.' },
+      { name: 'tldraw', url: gh('tldraw/tldraw'), by: 'oss', note: 'Infinite canvas SDK with a full editor on top.' }
+    ],
+    visualization: [
+      { name: 'mindgraph', url: gh('funclosure/mindgraph'), by: 'you', note: 'A force-directed concept graph on one 2D canvas, with layout, hit testing, camera, and emphasis all hand-rolled.' },
+      { name: 'D3', url: gh('d3/d3'), by: 'oss', note: 'The toolkit for data-driven documents: forces, scales, shapes, and the vocabulary everyone else borrows.' },
+      { name: 'Cytoscape.js', url: gh('cytoscape/cytoscape.js'), by: 'oss', note: 'Graph theory library with layouts and analysis for node-link views.' },
+      { name: 'sigma.js', url: gh('jacomyal/sigma.js'), by: 'oss', note: 'WebGL renderer for graphs too large for a 2D canvas.' }
+    ],
+    'visualization-map': [
+      { name: 'MapLibre GL JS', url: gh('maplibre/maplibre-gl-js'), by: 'oss', note: 'Vector tiles on WebGL; the open successor to Mapbox GL and the default for production.' },
+      { name: 'Leaflet', url: gh('Leaflet/Leaflet'), by: 'oss', note: 'The small raster-tile classic. The slippy map this demo imitates.' },
+      { name: 'deck.gl', url: gh('visgl/deck.gl'), by: 'oss', note: 'Large-scale geospatial layers on WebGL, on top of a base map.' }
+    ],
+    webgl: [
+      { name: 'screenshot-maker', url: gh('funclosure/screenshot-maker'), by: 'you', note: 'A 3D iPhone stage in the browser for framing App Store screenshots.' },
+      { name: 'three.js', url: gh('mrdoob/three.js'), by: 'oss', note: 'The library this demo runs on.' },
+      { name: 'react-three-fiber', url: gh('pmndrs/react-three-fiber'), by: 'oss', note: 'three.js as React components, with the pmndrs ecosystem around it.' },
+      { name: 'Babylon.js', url: gh('BabylonJS/Babylon.js'), by: 'oss', note: 'A full engine when a scene graph is not enough.' }
+    ],
+    'reading-graph': [
+      { name: 'mindgraph', url: gh('funclosure/mindgraph'), by: 'you', note: 'The origin of this composition: scrolling the Source pane spotlights the graph.' },
+      { name: 'scrollama', url: gh('russellsamora/scrollama'), by: 'oss', note: 'Scrollytelling with IntersectionObserver. The scroll-to-step resolver, generalized.' }
+    ],
+    'ask-graph': [
+      { name: 'mindgraph', url: gh('funclosure/mindgraph'), by: 'you', note: 'The Ask pane: a live agent answers over the digested graph and the canvas follows.' }
+    ]
+  };
+  for (const m of ALL) { m.examples = EXAMPLES[m.id] || []; for (const k of m.kinds || []) k.examples = EXAMPLES[k.folder] || []; }
+  const renderExamples = list => h('div', { class: 'ex-list' }, list.length ? list.map(x => h('div', { class: 'ex' },
+    h('div', { class: 'ex-head' }, x.url ? h('a', { href: x.url, target: '_blank', rel: 'noopener' }, x.name) : h('span', { class: 'name' }, x.name),
+      h('span', { class: 'tag ' + x.by }, x.by === 'you' ? 'side project' : 'open source'), x.private ? h('span', { class: 'tag oss' }, 'private') : null),
+    h('p', {}, x.note))) : h('p', {}, 'No examples yet. This is where a side project or an open source repo goes.'));
+
+  /* =====================================================================
+     LIVING TILES — one shared loop, static frame under reduced motion
+     ===================================================================== */
+  const tileDraw = {
+    text(c, t, acc, ink) {
+      const word = 'Every medium your app could speak.'; const n = Math.floor((t * 12) % (word.length + 12));
+      c.font = '500 14px IBM Plex Mono, monospace'; c.fillStyle = ink; c.fillText(word.slice(0, n), 12, 42);
+      if (Math.floor(t * 2) % 2 === 0) { c.fillStyle = acc; c.fillRect(12 + c.measureText(word.slice(0, n)).width + 2, 30, 7, 15); }
+    },
+    audio(c, t, acc, ink) {
+      const w = c.canvas.clientWidth, n = 28; c.fillStyle = acc;
+      for (let i = 0; i < n; i++) { const hh = 8 + Math.abs(Math.sin(t * 3 + i * 0.5) * Math.sin(t * 0.7 + i * 0.2)) * 46; c.fillRect(8 + i * (w - 16) / n, 36 - hh / 2, (w - 16) / n * 0.55, hh); }
+    },
+    video(c, t, acc, ink) {
+      const w = c.canvas.clientWidth; c.fillStyle = acc; c.globalAlpha = 0.18; c.fillRect(0, 0, w, 72);
+      c.globalAlpha = 0.5; const y = (t * 40) % 90 - 10; const g = c.createLinearGradient(0, y - 12, 0, y + 12); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.5, acc); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, y - 12, w, 24);
+      c.globalAlpha = 0.25; c.fillStyle = ink; for (let yy = 0; yy < 72; yy += 3) c.fillRect(0, yy, w, 1);
+      c.globalAlpha = 1; if (Math.floor(t * 1.5) % 2 === 0) { c.fillStyle = '#D9573F'; c.beginPath(); c.arc(16, 16, 4, 0, 7); c.fill(); }
+    },
+    image(c, t, acc, ink) {
+      const w = c.canvas.clientWidth; c.fillStyle = acc;
+      for (let y = 8; y < 72; y += 10) for (let x = 8; x < w; x += 10) { const r = 1 + 3.5 * (0.5 + 0.5 * Math.sin(x / 22 + t) * Math.cos(y / 14 - t * 0.8)); c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); }
+    },
+    drawing(c, t, acc, ink) {
+      const w = c.canvas.clientWidth, cycle = 4, u = (t % cycle) / cycle, steps = Math.floor(u * 140);
+      c.strokeStyle = acc; c.lineCap = 'round'; c.beginPath();
+      for (let i = 0; i <= steps; i++) { const a = i / 140 * Math.PI * 2; const x = w / 2 + Math.sin(a * 3) * (w / 2 - 14), y = 36 + Math.sin(a * 2) * 24; c.lineWidth = 2 + Math.sin(a * 5) * 1.5; i ? c.lineTo(x, y) : c.moveTo(x, y); }
+      c.stroke();
+    },
+    visualization(c, t, acc, ink) {
+      const w = c.canvas.clientWidth, cx = w / 2, cy = 36;
+      const P = [0, 1, 2, 3, 4, 5, 6].map(i => [cx + Math.cos(t * 0.4 + i * 0.9) * (w * 0.32) * (0.6 + 0.4 * Math.sin(i)), cy + Math.sin(t * 0.55 + i * 1.3) * 24]);
+      c.strokeStyle = ink; c.globalAlpha = 0.3; c.lineWidth = 1; c.beginPath();
+      for (let i = 1; i < P.length; i++) { c.moveTo(...P[0]); c.lineTo(...P[i]); } c.moveTo(...P[2]); c.lineTo(...P[5]); c.stroke();
+      c.globalAlpha = 1; const lit = Math.floor(t * 0.7) % P.length;
+      P.forEach((p, i) => { c.fillStyle = i === lit || i === 0 ? acc : ink; c.beginPath(); c.arc(p[0], p[1], i === 0 ? 6 : 3.5, 0, 7); c.fill(); });
+    },
+    'reading-graph'(c, t, acc, ink) {
+      const w = c.canvas.clientWidth, half = w * 0.42, lineH = 9, off = (t * 12) % (lineH * 4);
+      c.fillStyle = ink; c.globalAlpha = 0.25;
+      for (let i = -1; i < 8; i++) { const y = 8 + i * lineH - off; if (y < 4 || y > 60) continue; c.fillRect(12, y, half - 24 - (i % 3) * 14, 3); }
+      const activeY = 30; c.globalAlpha = 1; c.fillStyle = acc; c.fillRect(12, activeY, half - 40, 3);
+      const cx = half + (w - half) / 2, cy = 32, N = 6, lit = Math.floor(t * 0.75) % N;
+      c.strokeStyle = ink; c.globalAlpha = 0.3; c.beginPath();
+      for (let i = 0; i < N; i++) { const a = i / N * Math.PI * 2; c.moveTo(cx, cy); c.lineTo(cx + Math.cos(a) * 24, cy + Math.sin(a) * 20); } c.stroke();
+      c.globalAlpha = 1;
+      for (let i = 0; i < N; i++) { const a = i / N * Math.PI * 2; c.fillStyle = i === lit ? acc : ink; c.beginPath(); c.arc(cx + Math.cos(a) * 24, cy + Math.sin(a) * 20, i === lit ? 4.5 : 3, 0, 7); c.fill(); }
+      c.fillStyle = acc; c.beginPath(); c.arc(cx, cy, 5, 0, 7); c.fill();
+    },
+    'ask-graph'(c, t, acc, ink) {
+      const w = c.canvas.clientWidth, half = w * 0.42, word = 'What is ignition?', n = Math.floor((t * 10) % (word.length + 10));
+      c.font = '500 12px IBM Plex Mono, monospace'; c.fillStyle = ink; c.fillText(word.slice(0, n), 12, 22);
+      c.fillStyle = ink; c.globalAlpha = 0.25; for (let i = 0; i < 4; i++) c.fillRect(12, 34 + i * 8, Math.min(half - 30, Math.max(0, (t * 60 - i * 40) % 260)), 3);
+      c.globalAlpha = 1;
+      const cx = half + (w - half) / 2, cy = 32, N = 6, k = Math.floor((t * 1.2) % (N + 2));
+      c.strokeStyle = ink; c.globalAlpha = 0.3; c.beginPath();
+      for (let i = 0; i < N; i++) { const a = i / N * Math.PI * 2; c.moveTo(cx, cy); c.lineTo(cx + Math.cos(a) * 24, cy + Math.sin(a) * 20); } c.stroke();
+      c.globalAlpha = 1;
+      for (let i = 0; i < N; i++) { const a = i / N * Math.PI * 2; c.fillStyle = i < k ? acc : ink; c.beginPath(); c.arc(cx + Math.cos(a) * 24, cy + Math.sin(a) * 20, i < k ? 4.5 : 3, 0, 7); c.fill(); }
+      c.fillStyle = acc; c.beginPath(); c.arc(cx, cy, 5, 0, 7); c.fill();
+    },
+    webgl(c, t, acc, ink) {
+      const w = c.canvas.clientWidth, cx = w / 2, cy = 36, s = 22, a = t * 0.8, b = t * 0.5;
+      const P = []; for (const x of [-1, 1]) for (const y of [-1, 1]) for (const z of [-1, 1]) {
+        let X = x * Math.cos(a) - z * Math.sin(a), Z = x * Math.sin(a) + z * Math.cos(a), Y = y;
+        const Y2 = Y * Math.cos(b) - Z * Math.sin(b); Z = Y * Math.sin(b) + Z * Math.cos(b); Y = Y2;
+        const d = 1 / (3.2 - Z); P.push([cx + X * s * d * 3, cy + Y * s * d * 3]);
+      }
+      c.strokeStyle = acc; c.lineWidth = 1.5; c.beginPath();
+      for (let i = 0; i < 8; i++) for (let j = i + 1; j < 8; j++) { const diff = (i ^ j); if (diff === 1 || diff === 2 || diff === 4) { c.moveTo(...P[i]); c.lineTo(...P[j]); } }
+      c.stroke();
+    }
+  };
+  const tiles = [];
+  function tilesFrame(now) {
+    const t = now / 1000;
+    for (const { tile, ctx, id } of tiles) {
+      const dpr = devicePixelRatio || 1, cw = ctx.canvas.clientWidth, ch = ctx.canvas.clientHeight;
+      if (ctx.canvas.width !== Math.round(cw * dpr)) { ctx.canvas.width = Math.round(cw * dpr); ctx.canvas.height = Math.round(ch * dpr); }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, cw, ch); ctx.globalAlpha = 1;
+      tileDraw[id](ctx, t, accentOf(tile), inkOf(tile));
+    }
+    if (!reduceMotion) requestAnimationFrame(tilesFrame);
+  }
+
+  /* =====================================================================
+     PAGE WIRING
+     ===================================================================== */
+  const pool = $('#pool'), comps = $('#comps'), demoRoot = $('#demo-root'), stage = $('#stage');
+  let active = null, mounted = null;
+  const mediumById = id => MEDIUMS.find(m => m.id === id);
+  const partChips = ids => h('div', { class: 'parts' }, ids.map(id => { const m = mediumById(id); return h('span', { class: 'part', style: `--pc:${m.accent}` }, m.name); }));
+
+  for (const m of MEDIUMS) {
+    const cv = h('canvas', { 'aria-hidden': 'true' });
+    const tile = h('button', { class: 'tile' + (m.kinds ? ' has-kinds' : ''), type: 'button', style: `--tile-accent:${m.accent}`, 'aria-pressed': 'false', 'data-id': m.id, onclick: () => select(m.id, true) },
+      h('div', { class: 'tile-head' }, h('h2', {}, m.name), h('span', { class: 'hook' }, m.hook)),
+      m.kinds ? h('div', { class: 'kinds' }, h('span', { class: 'label' }, 'kinds'), m.kinds.map(k => h('span', { class: 'kind' }, k.name))) : null, cv);
+    pool.append(tile); tiles.push({ tile, ctx: cv.getContext('2d'), id: m.id });
+  }
+  for (const c of COMPOSITIONS) {
+    const cv = h('canvas', { 'aria-hidden': 'true' });
+    const tile = h('button', { class: 'tile comp', type: 'button', style: `--tile-accent:${c.accent}`, 'aria-pressed': 'false', 'data-id': c.id, onclick: () => select(c.id, true) },
+      h('div', { class: 'tile-head' }, h('h2', {}, c.name), h('span', { class: 'hook' }, c.hook)),
+      h('div', { class: 'parts' }, partChips(c.mediums), h('span', { class: 'binding' }, c.binding)), cv);
+    comps.append(tile); tiles.push({ tile, ctx: cv.getContext('2d'), id: c.id });
+  }
+  requestAnimationFrame(tilesFrame);
+
+  let activeKind = null;
+  function select(id, scroll, kindId = null) {
+    const m = ALL.find(x => x.id === id); if (!m) return;
+    const k = kindId && m.kinds ? m.kinds.find(x => x.id === kindId) : null;
+    if (m === active && k === activeKind) return;
+    mounted?.unmount(); demoRoot.replaceChildren();
+    active = m; activeKind = k; mounted = (k || m).demo;
+    const entry = k || m;
+    $('#demo-kinds').replaceChildren(...(m.kinds ? [h('div', { class: 'seg kindswitch', role: 'group', 'aria-label': 'Kind' },
+      h('button', { 'aria-pressed': !k, onclick: () => select(m.id, false) }, 'Lane'),
+      m.kinds.map(kk => h('button', { 'aria-pressed': kk === k, onclick: () => select(m.id, false, kk.id) }, kk.name)))] : []));
+    document.documentElement.style.setProperty('--accent', m.accent);
+    stage.style.setProperty('--accent', m.accent);
+    document.querySelectorAll('.tile').forEach(t => t.setAttribute('aria-pressed', t.dataset.id === id));
+    $('#demo-title').textContent = k ? `${m.name} / ${k.name}` : m.name; $('#demo-hook').textContent = entry.hook;
+    $('#demo-message').replaceChildren(h('strong', {}, 'message'), entry.message);
+    $('#demo-parts').replaceChildren(...(m.mediums ? [partChips(m.mediums)] : []));
+    $('.tab[data-tab="why"]').textContent = m.mediums ? 'Why this composition' : k ? 'Why this kind' : 'Why this medium';
+    $('[data-tab="why"].tabpanel').innerHTML = entry.why + (m.kinds && !k ? `<h3>Kinds in this lane</h3><ul>${m.kinds.map(kk => `<li><strong>${kk.name}</strong>: ${kk.hook}. Own skill, because its concerns diverge from the lane's.</li>`).join('')}</ul>` : '');
+    $('[data-tab="gotchas"].tabpanel').innerHTML = `<h3>Where it bites</h3><ul>${entry.gotchas.map(g => `<li>${g}</li>`).join('')}</ul>`;
+    $('[data-tab="wild"].tabpanel').replaceChildren(h('h3', {}, 'Built with this ' + (m.mediums ? 'composition' : k ? 'kind' : 'medium')), renderExamples(entry.examples));
+    $('#skill-md').textContent = entry.skill;
+    const folder = k ? k.folder : m.id;
+    $('#install-one').textContent = `npx skills add funclosure/medium-pool --skill ${folder}`;
+    $('#skill-path').textContent = m.mediums ? `compositions/${m.id}/SKILL.md` : `skills/${folder}/SKILL.md`;
+    mounted.mount(demoRoot);
+    if (scroll) stage.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }
+
+  document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t === tab));
+    document.querySelectorAll('.tabpanel').forEach(p => p.toggleAttribute('data-active', p.dataset.tab === tab.dataset.tab));
+  }));
+  $('#copy-skill').addEventListener('click', e => copyText((activeKind || active).skill, e.currentTarget));
+  $('#copy-install').addEventListener('click', e => copyText($('#install-one').textContent, e.currentTarget));
+  document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', e => copyText($(b.dataset.copy).textContent, e.currentTarget)));
+
+  addEventListener('pagehide', () => mounted?.unmount());
+  select('text', false);
+})();
+</script>

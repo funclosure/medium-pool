@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import Stage from '../components/Stage.astro';
+import ContextTabs from '../components/ContextTabs.astro';
+import { getCatalog, type Entry } from '../lib/catalog';
+
+export async function getStaticPaths() {
+  const { all } = await getCatalog();
+  return all.map((entry) => ({ params: { slug: entry.path.slice(1) }, props: { entry } }));
+}
+
+const { entry } = Astro.props as { entry: Entry };
+const { lanes } = await getCatalog();
+const lane = entry.level === 'kind' ? lanes.find((l) => l.slug === entry.laneSlug) : entry.level === 'lane' ? entry : undefined;
+const parts = (entry.mediums ?? []).map((m) => lanes.find((l) => l.slug === m)).filter(Boolean) as Entry[];
+const title = entry.level === 'kind' && lane ? `${lane.name} / ${entry.name} · Medium Pool` : `${entry.name} · Medium Pool`;
+---
+
+<Base title={title} description={`${entry.hook}. ${entry.message}`} accent={entry.accent}>
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">All mediums</a>
+    {entry.level === 'kind' && lane && <><span>/</span><a href={lane.path}>{lane.name}</a></>}
+    {entry.level === 'composition' && <><span>/</span><span>Compositions</span></>}
+    <span>/</span><span>{entry.name}</span>
+  </nav>
+  <section class="stage">
+    <Stage entry={entry} lane={lane} parts={parts} />
+    <ContextTabs entry={entry} parts={parts} />
+  </section>
+  <script>
+    import '../scripts/stage.ts';
+  </script>
+</Base>

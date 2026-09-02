@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import LaneTile from '../components/LaneTile.astro';
+import CompositionTile from '../components/CompositionTile.astro';
+import { getCatalog } from '../lib/catalog';
+
+const { lanes, compositions } = await getCatalog();
+const kindCount = lanes.reduce((n, l) => n + l.kinds.length, 0);
+const partsOf = (c: { mediums?: string[] }) => (c.mediums ?? []).map((m) => lanes.find((l) => l.slug === m)).filter(Boolean) as typeof lanes;
+const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
+---
+
+<Base title="Medium Pool" description="Every medium your app could speak: try each one live, then take the Agent Skill that builds it." home accent={lanes[0]?.accent}>
+  <header class="top">
+    <div class="brand">
+      <div class="eyebrow">{plural(lanes.length, 'medium')} · {plural(kindCount, 'kind')} · {plural(compositions.length, 'composition')} · a skill for each</div>
+      <h1>Every medium your app could speak.<br />Try it, then <span>take the skill</span>.</h1>
+      <p>The medium is the message. Pick the one that says what your product means, try it live, then drop the matching Agent Skill into your repo so your coding agent builds it for you.</p>
+    </div>
+    <div class="install" title="Installs every skill in the pool">
+      <span class="dollar">$</span><span id="install-all">npx skills add funclosure/medium-pool</span>
+      <button class="btn small" data-copy="#install-all">Copy</button>
+    </div>
+  </header>
+
+  <div class="section-head"><h2>Mediums</h2><p>One skill each. A lane is a folder. A kind is a data domain inside a lane whose concerns diverge; it is a folder too, named lane-kind, and shows up under its lane.</p></div>
+  <section class="pool" aria-label="Choose a medium">
+    {lanes.map((lane) => <LaneTile lane={lane} />)}
+  </section>
+
+  {compositions.length > 0 && (
+    <>
+      <div class="section-head"><h2>Compositions</h2><p>Two or more mediums bound together. The skill teaches the binding and points at the mediums for the parts.</p></div>
+      <section class="comps" aria-label="Choose a composition">
+        {compositions.map((c) => <CompositionTile comp={c} parts={partsOf(c)} />)}
+      </section>
+    </>
+  )}
+
+  <script>
+    import '../scripts/tiles.ts';
+  </script>
+</Base>

@@ -1,0 +1,14 @@
+---
+import type { Entry } from '../lib/catalog';
+interface Props { comp: Entry; parts: Entry[] }
+const { comp, parts } = Astro.props;
+---
+
+<a class="tile comp themed" href={comp.path} style={`--accent-light:${comp.accent.light};--accent-dark:${comp.accent.dark}`} data-slug={comp.slug}>
+  <div class="tile-head"><h2>{comp.name}</h2><span class="hook">{comp.hook}</span></div>
+  <div class="parts">
+    {parts.map((p) => <span class="part themed" style={`--accent-light:${p.accent.light};--accent-dark:${p.accent.dark}`}>{p.name}</span>)}
+    <span class="binding">{comp.binding}</span>
+  </div>
+  <canvas data-preview={comp.slug} aria-hidden="true"></canvas>
+</a>

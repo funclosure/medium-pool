@@ -1,0 +1,13 @@
+---
+import type { Entry } from '../lib/catalog';
+interface Props { lane: Entry }
+const { lane } = Astro.props;
+---
+
+<a class:list={['tile', 'themed', { 'has-kinds': lane.kinds.length > 0 }]} href={lane.path} style={`--accent-light:${lane.accent.light};--accent-dark:${lane.accent.dark}`} data-slug={lane.slug}>
+  <div class="tile-head"><h2>{lane.name}</h2><span class="hook">{lane.hook}</span></div>
+  {lane.kinds.length > 0 && (
+    <div class="kinds"><span class="label">kinds</span>{lane.kinds.map((k) => <span class="kind">{k.name}</span>)}</div>
+  )}
+  <canvas data-preview={lane.slug} aria-hidden="true"></canvas>
+</a>

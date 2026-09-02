@@ -1,0 +1,68 @@
+---
+import type { Entry } from '../lib/catalog';
+import { skillText } from '../lib/skillText';
+interface Props { entry: Entry; parts?: Entry[] }
+const { entry, parts = [] } = Astro.props;
+const noun = entry.level === 'lane' ? 'medium' : entry.level;
+const skill = skillText(entry.skillPath);
+const install = `npx skills add funclosure/medium-pool --skill ${entry.folder}`;
+---
+
+<div class="panel" id="context-panel">
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="why" aria-selected="true">Why this {noun}</button>
+    <button class="tab" role="tab" data-tab="gotchas" aria-selected="false">Gotchas</button>
+    <button class="tab" role="tab" data-tab="wild" aria-selected="false">In the wild</button>
+    <button class="tab" role="tab" data-tab="skill" aria-selected="false">Skill</button>
+  </div>
+  <div class="tabpanel prose" data-tab="why" data-active>
+    <Fragment set:html={entry.whyHtml} />
+    {entry.level === 'composition' && parts.length > 0 && (
+      <>
+        <h3>Built from</h3>
+        <ul>{parts.map((p) => <li><a href={p.path}>{p.name}</a>: {p.hook}</li>)}</ul>
+      </>
+    )}
+    {entry.level === 'lane' && entry.kinds.length > 0 && (
+      <>
+        <h3>Kinds in this lane</h3>
+        <ul>{entry.kinds.map((k) => <li><a href={k.path}><strong>{k.name}</strong></a>: {k.hook}. Own skill, because its concerns diverge from the lane's.</li>)}</ul>
+      </>
+    )}
+  </div>
+  <div class="tabpanel prose" data-tab="gotchas"><Fragment set:html={entry.gotchasHtml} /></div>
+  <div class="tabpanel prose" data-tab="wild">
+    <h3>Built with this {noun}</h3>
+    <div class="ex-list">
+      {entry.examples.length === 0 && <p>No examples yet. This is where a side project or an open source repo goes.</p>}
+      {entry.examples.map((x) => (
+        <div class="ex">
+          <div class="ex-head">
+            {x.url ? <a href={x.url} target="_blank" rel="noopener">{x.name}</a> : <span class="name">{x.name}</span>}
+            <span class:list={['tag', x.by]}>{x.by === 'you' ? 'side project' : 'open source'}</span>
+            {x.private && <span class="tag oss">private</span>}
+          </div>
+          <p>{x.note}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+  <div class="tabpanel" data-tab="skill">
+    <div class="skill-tools">
+      <div class="row">
+        <button class="btn primary" data-copy="#skill-md">Copy SKILL.md</button>
+        <button class="btn" data-copy="#install-one">Copy install line</button>
+      </div>
+      <div class="install"><span class="dollar">$</span><span id="install-one">{install}</span></div>
+      <div class="skill-path">{entry.skillPath}</div>
+    </div>
+    <pre class="skill-md" id="skill-md">{skill}</pre>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.tab').forEach((tab) => tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+    document.querySelectorAll<HTMLElement>('.tabpanel').forEach((p) => p.toggleAttribute('data-active', p.dataset.tab === tab.dataset.tab));
+  }));
+</script>

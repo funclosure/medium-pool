@@ -1,0 +1,69 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** index page renders its own hero; every other page gets the compact top bar */
+  home?: boolean;
+  accent?: { light: string; dark: string };
+}
+const { title, description, home = false, accent } = Astro.props;
+const accentStyle = accent ? `--accent-light:${accent.light};--accent-dark:${accent.dark}` : undefined;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" />
+    <title>{title}</title>
+  </head>
+  <body class:list={['themed']} style={accentStyle}>
+    <div class="wrap">
+      {!home && (
+        <header class="topbar">
+          <a class="home" href="/">Medium Pool <span>· every medium your app could speak</span></a>
+          <div class="install" title="Installs every skill in the pool">
+            <span class="dollar">$</span><span id="install-all">npx skills add funclosure/medium-pool</span>
+            <button class="btn small" data-copy="#install-all">Copy</button>
+          </div>
+        </header>
+      )}
+      <slot />
+      <footer>
+        <div>
+          <h3>How the repo is laid out</h3>
+          <p>Each demo is the reference implementation its skill points to. The site imports the same file the agent reads, so the skill is proven by the running demo. Every lane, kind, and composition is a folder with a manifest, and the site discovers folders at build time, so extending the pool never touches site code.</p>
+          <p class="credit">“The medium is the message” is Marshall McLuhan, <em>Understanding Media</em> (1964). Here it is a design lens: every lane names what the medium does to a person before any content arrives, and the skills lead with that.</p>
+        </div>
+        <pre>medium-pool/
+├── src/                          Astro site, static, Cloudflare Pages
+│   ├── content.config.ts         the manifest contract (zod)
+│   └── pages/[...slug].astro     one page per folder, found at build
+└── skills/                       one folder per lane, kind, and composition
+    ├── medium-text/              a lane
+    │   ├── lane.md               manifest frontmatter + Why + Gotchas
+    │   ├── SKILL.md              what the agent reads
+    │   └── reference/StreamingText.ts
+    ├── medium-audio/ medium-video/ medium-image/
+    ├── medium-drawing/ medium-visualization/ medium-webgl/
+    ├── medium-visualization-map/ a kind: map, under lane visualization
+    ├── compose-reading-graph/    a composition: mediums bound by a signal
+    │   ├── composition.md        manifest: mediums + binding
+    │   ├── SKILL.md
+    │   └── reference/ReadingGraph.ts
+    └── compose-ask-graph/</pre>
+      </footer>
+    </div>
+    <script>
+      import '../scripts/copy.ts';
+    </script>
+  </body>
+</html>

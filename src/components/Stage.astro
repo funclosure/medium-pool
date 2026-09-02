@@ -1,0 +1,30 @@
+---
+import type { Entry } from '../lib/catalog';
+interface Props {
+  entry: Entry;
+  /** parent lane when entry is a kind, else the entry itself for lanes; undefined for compositions */
+  lane?: Entry;
+  parts?: Entry[];
+}
+const { entry, lane, parts = [] } = Astro.props;
+const title = entry.level === 'kind' && lane ? `${lane.name} / ${entry.name}` : entry.name;
+const switcher = lane && lane.kinds.length > 0 ? [lane, ...lane.kinds] : [];
+---
+
+<div class="panel" id="demo-panel">
+  <div class="panel-head">
+    <span class="dot"></span>
+    <h2>{title}</h2>
+    {parts.length > 0 && (
+      <div class="parts">{parts.map((p) => <span class="part themed" style={`--accent-light:${p.accent.light};--accent-dark:${p.accent.dark}`}>{p.name}</span>)}</div>
+    )}
+    {switcher.length > 0 && (
+      <nav class="seg kindswitch" aria-label="Kind">
+        {switcher.map((s, i) => <a href={s.path} aria-current={s.slug === entry.slug ? 'page' : undefined}>{i === 0 ? 'Lane' : s.name}</a>)}
+      </nav>
+    )}
+    <span class="hook">{entry.hook}</span>
+  </div>
+  <div class="message"><strong>message</strong>{entry.message}</div>
+  <div class="demo" data-demo={entry.demoKey}></div>
+</div>
