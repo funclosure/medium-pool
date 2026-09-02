@@ -181,7 +181,7 @@
   .tag { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; padding: 1px 6px; border-radius: 4px; }
   .tag.you { background: var(--accent); color: #fff; }
   .tag.oss { border: 1px solid var(--line-strong); color: var(--muted); }
-  .tag.pool { background: var(--ink); color: var(--ground); }
+  .tag.in-pool { background: var(--ink); color: var(--ground); }
   .instance-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 18px 0; }
   .inst-label { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); display: inline-flex; gap: 8px; align-items: baseline; }
   .inst-label b { font-family: var(--body); font-size: 14px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--ink); }
